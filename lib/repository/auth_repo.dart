@@ -9,7 +9,7 @@ import '../storage/token_storage.dart';
 
 class AuthRepository {
   final TokenStorage tokenStorage = TokenStorage();
-  static const String baseUrl = 'http://localhost:8080/auth';
+  static const String baseUrl = 'http://172.16.27.195:8080/auth';
   Future<AuthResponse> login(String email, String password) async {
   try {
     var res = await http.post(

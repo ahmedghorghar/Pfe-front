@@ -10,8 +10,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:tataguid/storage/profil_storage.dart';
 
 class ProfileRepository {
-  static final String baseUrl =
-      'http://localhost:8080/profile'; // Replace with your backend URL
+  static const String baseUrl = 'http://172.16.27.195:8080/profile'; // Replace with your backend URL
 
  Future<String> uploadProfileImage(
     File imageFile, String token, String email) async {

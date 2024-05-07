@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tataguid/blocs/guest/guest_bloc.dart';
+import 'package:tataguid/blocs/guest/guest_event.dart';
 import 'package:tataguid/blocs/login/login_bloc.dart';
 import 'package:tataguid/blocs/login/login_event.dart';
 import 'package:tataguid/blocs/login/login_state.dart';
@@ -13,6 +15,7 @@ import 'package:tataguid/components/my_button.dart';
 import 'package:tataguid/components/my_textfield.dart';
 import 'package:tataguid/components/square_tile.dart';
 import 'package:tataguid/ui/SignUpUi.dart';
+import 'package:tataguid/ui/get_contacts.dart';
 import '../widgets/first_page.dart';
 import '../widgets/second_page.dart';
 import '../widgets/third_page.dart';
@@ -24,15 +27,12 @@ class LoginUi extends StatefulWidget {
 }
 
 class _LoginUiState extends State<LoginUi> {
-  TextEditingController emailController =
-      TextEditingController(text: 'mrabet@gmail.com');
-  TextEditingController passwordController =
-      TextEditingController(text: '12345678');
+  TextEditingController emailController = TextEditingController(/* text: 'mrabet@gmail.com' */);
+  TextEditingController passwordController = TextEditingController(/* text: '12345678' */);
   late LoginBloc authBloc;
   String errorMessage = '';
 
-  late double
-      screenWidth; // screen width takes the size.width to create responsive design and you can change easily
+  late double screenWidth; // screen width takes the size.width to create responsive design and you can change easily
   late double screenHeight; // same as for screenheight
 
   // used for forget password
@@ -250,6 +250,29 @@ class _LoginUiState extends State<LoginUi> {
                       ),
                     ],
                   ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Take the opportunity to visit as a',
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                      SizedBox(width: 5),
+                      InkWell(
+                        onTap: () {
+                          BlocProvider.of<GuestBloc>(context)
+                              .add(GenerateGuestID());
+                          Navigator.pushNamed(context, '/Guest');
+                        },
+                        child: Text(
+                          ' Guest',
+                          style: TextStyle(
+                              color: Colors.blue, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(height: screenHeight * 0.04),
                 ],
               ),
@@ -311,7 +334,7 @@ class _LoginUiState extends State<LoginUi> {
                 pageController: pageController,
                 screenWidth: screenWidth,
                 otpList: [],
-                formKey: formKey, 
+                formKey: formKey,
                 passwordController: password,
                 confirmPasswordController: confirmPass,
               ), // second page where you enter otp that will send on users email

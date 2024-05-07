@@ -1,16 +1,10 @@
 // lib/main.dart
 
-// import 'package:clientproject/pages/onboarding_page.dart';
-// import 'package:clientproject/repository/auth_repo.dart';
-// import 'package:clientproject/ui/LoginUi.dart';
-// import 'package:clientproject/ui/get_contacts.dart';
-// import 'package:tataguid/storage/token_storage.dart';
-// import 'package:clientproject/ui/post_contacts.dart';
-// import 'package:tataguid/ui/signup_option.dart';
-// import 'blocs/signup/signup_bloc.dart';
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tataguid/blocs/guest/guest_bloc.dart';
 import 'package:tataguid/blocs/login/login_bloc.dart';
 import 'package:tataguid/blocs/profile/profile_bloc.dart';
 import 'package:tataguid/blocs/resetPassword/reset_password_bloc.dart';
@@ -19,6 +13,7 @@ import 'package:tataguid/constants/ThemeProvider.dart';
 import 'package:tataguid/pages/onboarding_page.dart';
 import 'package:tataguid/repository/auth_repo.dart';
 import 'package:provider/provider.dart';
+import 'package:tataguid/repository/guest_repository.dart';
 import 'package:tataguid/repository/password_reset_repo.dart';
 import 'package:tataguid/repository/profil_repo.dart';
 import 'package:tataguid/ui/LoginUi.dart';
@@ -33,6 +28,7 @@ class TataGuid extends StatelessWidget {
     final AuthRepository authRepository = AuthRepository();
     final ForgotPasswordRepository forgotPasswordRepository = ForgotPasswordRepository();
     final ProfileRepository profileRepository = ProfileRepository();
+    final GuestRepository guestRepository = GuestRepository();
 
     return MultiProvider(
       providers: [
@@ -51,18 +47,20 @@ class TataGuid extends StatelessWidget {
           create: (context) => ProfileBloc(
               profileRepository: profileRepository),
         ),
+        BlocProvider<GuestBloc>(
+          create: (context) => GuestBloc(
+              guestRepository: guestRepository),
+        ),
       ],
         child:  MaterialApp(
           debugShowCheckedModeBanner: false,
           initialRoute: '/login_ui',
           routes: {
             '/': (context) => OnboardingPage(),
-            '/user_dashboard': (context) =>
-                UserPage(), // Replace with your user dashboard widget
-            '/agency_panel': (context) =>
-                AgencyPanelScreen(), // Replace with your agency panel widget
-            '/login_ui': (context) =>
-                LoginUi(), // Replace with your agency panel widget
+            '/user_dashboard': (context) => UserPage(), // Replace with your user dashboard widget
+            '/agency_panel': (context) => AgencyPanelScreen(), // Replace with your agency panel widget
+            '/login_ui': (context) => LoginUi(), // Replace with your agency panel widget
+            '/Guest': (context) => UserPage(), // Replace with your agency panel widget
           },
           onGenerateRoute: (settings) {
             // Handle platform-specific error route
