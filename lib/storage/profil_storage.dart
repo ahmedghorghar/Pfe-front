@@ -1,10 +1,10 @@
 // lib/storage/profil_storage.dart
 
-import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'dart:io';
 // import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileStorage {
+class ProfileUserStorage {
   // static FlutterSecureStorage _storage = FlutterSecureStorage();
 
   static Future<void> storeDefaultProfileImage() async {
@@ -64,5 +64,39 @@ class ProfileStorage {
   static Future<String?> getUserName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('user_name');
+    
   }
+}
+
+
+class ProfileAgencyStorage{
+
+
+  static Future<void> storeAgencyEmail(String email) async {
+    // Store the agency's name
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('agency_email', email);
+  }
+
+
+   static Future<String?> getAgencyEmail() async {
+    // Retrieve the agency's email
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('agency_email');
+  }
+
+
+  static Future<void> storeAgencyName(String agencyName) async {
+    // Store the agency's name
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('agency_name', agencyName);
+  }
+
+  static Future<String?> getAgencyName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('agency_name');
+    
+  }
+
+
 }

@@ -13,14 +13,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   LoginBloc({required this.authRepository}) : super(LoginInitState()) {
     on<LoginButtonPressed>(_onLoginButtonPressed);
+    on<LogoutEvent>(_onLogoutPressed);
   }
 
   void _onLoginButtonPressed(
     LoginButtonPressed event,
     Emitter<LoginState> emit,
   ) async {
-    print(
-        'Login button pressed: Email: ${event.email}, Password: ${event.password}');
+    print('Login button pressed: Email: ${event.email}, Password: ${event.password}');
     emit(LoginLoadingState()); // Emit loading state before API call
 
     try {
@@ -31,20 +31,41 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (response.type == "user") {
         emit(UserLoginSuccessState(type: 'user')); // Navigate to user dashboard
         emit(NavigateToUserDashboard());
+        // Store user's name in SharedPreferences
+        await ProfileUserStorage.storeUserName(response.name);
       } else if (response.type == "agency") {
-        emit(AgencyLoginSuccessState(
-            type: 'agency')); // Navigate to agency panel
+        emit(AgencyLoginSuccessState(type: 'agency')); // Navigate to agency panel
         emit(NavigateToAgencyPanel());
+        // Store user's agency profile data
+      _storeAgencyProfileData(event.email, response.agencyName);
       } else {
         emit(LoginErrorState("unsupported user type!"));
       }
       // Store user's email in the profil_storage.dart file
-      await ProfileStorage.storeEmail(event.email);
-
+      await ProfileUserStorage.storeEmail(event.email);
     } catch (e) {
-      print('Error occurred during login: $e');
       emit(LoginErrorState("An error occurred: $e"));
     }
+  }
+
+  // In login_bloc.dart
+
+  void _onLogoutPressed(
+    LogoutEvent event,
+    Emitter<LoginState> emit,
+  ) async {
+    try{
+    await TokenStorage.deleteToken(); // Delete token from storage
+    emit(LogoutSuccessState()); // Emit logout success state
+    }catch(e){
+      print('Error occurred during logout; $e');
+    }
+  }
+
+  void _storeAgencyProfileData(String email, String agencyName) async {
+    await ProfileAgencyStorage.storeAgencyEmail(email); // Store agnecy's email
+    await ProfileAgencyStorage.storeAgencyName(
+        agencyName); // Store agnecy's name
   }
 
   @override

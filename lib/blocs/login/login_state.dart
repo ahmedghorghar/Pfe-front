@@ -43,3 +43,4 @@ class LoginErrorState extends LoginState {
 class NavigateToAgencyPanel extends LoginState {}
 
 class NavigateToUserDashboard extends LoginState {}
+class LogoutSuccessState extends LoginState {}

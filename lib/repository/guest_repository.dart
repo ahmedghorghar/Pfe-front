@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class GuestRepository {
-  static const String baseUrl = 'http://172.16.27.195:8080'; // Replace with your backend URL
+  static const String baseUrl = 'http://192.168.1.9:8080'; // Replace with your backend URL
 
 
   Future<String> generateGuestID() async {

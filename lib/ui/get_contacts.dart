@@ -2,10 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tataguid/userPages/profilePage.dart';
 
 class UserPage extends StatefulWidget {
-  const UserPage({Key? key}) : super(key: key);
+    final GoogleSignInAccount? user; // Change the type to allow null
+
+  const UserPage({Key? key, this.user}) : super(key: key);
 
   @override
   State<UserPage> createState() => _UserPageState();
@@ -70,7 +74,8 @@ class _UserPageState extends State<UserPage> {
             children: const [
               // Replace these with your content widgets for each tab
               Center(child: Text('Home Content')),
-              Center(child: Text('Search Content')),
+              Center(child: Text('search Content')),
+         //     MapPage(),
               Center(child: Text('Favorites Content')),
               Profilepage(), // Remove toggleTheme here
             ],

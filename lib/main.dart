@@ -9,7 +9,6 @@ import 'package:tataguid/blocs/login/login_bloc.dart';
 import 'package:tataguid/blocs/profile/profile_bloc.dart';
 import 'package:tataguid/blocs/resetPassword/reset_password_bloc.dart';
 import 'package:tataguid/blocs/signup/signup_bloc.dart';
-import 'package:tataguid/constants/ThemeProvider.dart';
 import 'package:tataguid/pages/onboarding_page.dart';
 import 'package:tataguid/repository/auth_repo.dart';
 import 'package:provider/provider.dart';
@@ -52,26 +51,25 @@ class TataGuid extends StatelessWidget {
               guestRepository: guestRepository),
         ),
       ],
-        child:  MaterialApp(
-          debugShowCheckedModeBanner: false,
-          initialRoute: '/login_ui',
-          routes: {
-            '/': (context) => OnboardingPage(),
-            '/user_dashboard': (context) => UserPage(), // Replace with your user dashboard widget
-            '/agency_panel': (context) => AgencyPanelScreen(), // Replace with your agency panel widget
-            '/login_ui': (context) => LoginUi(), // Replace with your agency panel widget
-            '/Guest': (context) => UserPage(), // Replace with your agency panel widget
-          },
-          onGenerateRoute: (settings) {
-            // Handle platform-specific error route
-            if (Platform.isAndroid || Platform.isIOS) {
-              return MaterialPageRoute(
-                builder: (context) => PlatformErrorScreen(),
-              );
-            }
-            return null;
-          },
-        )
+        child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: '/login_ui',
+        routes: {
+          '/': (context) => OnboardingPage(),
+          '/user_dashboard': (context) => UserPage(),
+          '/agency_panel': (context) => AgencyPanelScreen(),
+          '/login_ui': (context) => LoginUi(), // Your login page
+          '/Guest': (context) => UserPage(),
+        },
+        onGenerateRoute: (settings) {
+          if (Platform.isAndroid || Platform.isIOS) {
+            return MaterialPageRoute(
+              builder: (context) => PlatformErrorScreen(),
+            );
+          }
+          return null;
+        },
+      ),
     );
   }
 }

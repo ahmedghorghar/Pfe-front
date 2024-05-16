@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tataguid/blocs/guest/guest_bloc.dart';
 import 'package:tataguid/blocs/guest/guest_event.dart';
 import 'package:tataguid/blocs/login/login_bloc.dart';
@@ -14,6 +15,7 @@ import 'package:tataguid/blocs/resetPassword/reset_password_event.dart';
 import 'package:tataguid/components/my_button.dart';
 import 'package:tataguid/components/my_textfield.dart';
 import 'package:tataguid/components/square_tile.dart';
+import 'package:tataguid/repository/google_sign_in_demo.dart';
 import 'package:tataguid/ui/SignUpUi.dart';
 import 'package:tataguid/ui/get_contacts.dart';
 import '../widgets/first_page.dart';
@@ -27,12 +29,14 @@ class LoginUi extends StatefulWidget {
 }
 
 class _LoginUiState extends State<LoginUi> {
-  TextEditingController emailController = TextEditingController(/* text: 'mrabet@gmail.com' */);
-  TextEditingController passwordController = TextEditingController(/* text: '12345678' */);
+  // TextEditingController emailController = TextEditingController(text: 'mrabet@gmail.com');
+  TextEditingController emailController =      TextEditingController(text: 'aa@gmail.com');
+  TextEditingController passwordController =      TextEditingController(text: '12345678');
   late LoginBloc authBloc;
   String errorMessage = '';
 
-  late double screenWidth; // screen width takes the size.width to create responsive design and you can change easily
+  late double
+      screenWidth; // screen width takes the size.width to create responsive design and you can change easily
   late double screenHeight; // same as for screenheight
 
   // used for forget password
@@ -44,13 +48,9 @@ class _LoginUiState extends State<LoginUi> {
       PageController(); // page controller handles the animation when you tap continue button
 
   // these are the 3 controller that handles the textformfield when user fill the information like email and password and new password
-  TextEditingController forget_email = TextEditingController(
-      text:
-          'raserfinblade@gmail.com'); // forget_email just extract value with the help of this controller
-  TextEditingController password =
-      TextEditingController(text: '987654321'); // same as for password
-  TextEditingController confirmPasswordController =
-      TextEditingController(text: '987654321'); // same as for confirm password
+  TextEditingController forget_email = TextEditingController(text:'raserfinblade@gmail.com'); // forget_email just extract value with the help of this controller
+  TextEditingController password =    TextEditingController(text: '987654321'); // same as for password
+  TextEditingController confirmPasswordController =      TextEditingController(text: '987654321'); // same as for confirm password
   TextEditingController verificationCode =
       TextEditingController(); // same as for confirm password
   TextEditingController confirmPass =
@@ -216,6 +216,7 @@ class _LoginUiState extends State<LoginUi> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SquareTile(
+                        onTap: () => {handelGoogleSignIn()},
                         imagePath: 'assets/images/google.png',
                       ),
                       SizedBox(width: screenWidth * 0.04),
@@ -343,5 +344,23 @@ class _LoginUiState extends State<LoginUi> {
         );
       },
     );
+  }
+
+  Future<void> handelGoogleSignIn() async {
+    final user = await LoginAPI.login();
+    if (user != null) {
+      print("user is not null");
+      print(user.photoUrl);
+      print(user.email);
+      print(user.displayName);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UserPage(user: user),
+        ),
+      );
+    } else {
+      print("user is null");
+    }
   }
 }

@@ -2,14 +2,19 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tataguid/repository/AuthResponse.dart';
 import '../storage/token_storage.dart';
+import 'package:logger/logger.dart';
+
+
 
 class AuthRepository {
   final TokenStorage tokenStorage = TokenStorage();
-  static const String baseUrl = 'http://172.16.27.195:8080/auth';
+  static const String baseUrl = 'http://192.168.1.9:8080/auth';
+  final logger = Logger();
+
   Future<AuthResponse> login(String email, String password) async {
   try {
     var res = await http.post(
@@ -22,6 +27,8 @@ class AuthRepository {
         'password': password,
       }),
     ).timeout(Duration(seconds: 10)); // Adjust timeout duration as needed
+
+    // logger.d('Response Body: ${res.body}'); // Log the response body
 
     final data = json.decode(res.body);
     if (data['token'] != null) {

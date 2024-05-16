@@ -9,14 +9,13 @@ import 'package:flutter/material.dart'
     show ScaffoldMessenger; // Use 'material.dart'
 import 'package:provider/provider.dart';
 import 'package:tataguid/components/my_textfield.dart';
-import 'package:tataguid/models/user_model.dart';
+import 'package:tataguid/models/model.dart';
 import 'package:tataguid/repository/auth_repo.dart';
 import 'package:tataguid/storage/token_storage.dart';
 import 'package:tataguid/ui/LoginUi.dart';
 import 'package:tataguid/ui/signup_option.dart';
 import 'package:tataguid/widgets/BuildTextfield.dart';
 
-import 'get_contacts.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -26,15 +25,8 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  // final TextEditingController nameController = TextEditingController();
-  // final TextEditingController agencyNameController = TextEditingController();
-  // final TextEditingController typeController = TextEditingController();
-  // final TextEditingController languageController = TextEditingController();
-  // final TextEditingController countryController = TextEditingController();
-  // final TextEditingController locationController = TextEditingController();
-  // final TextEditingController descriptionController = TextEditingController();
   final TextEditingController emailController =
-      TextEditingController(text: 'aa@gmail.com');
+      TextEditingController(text: 'gg@gmail.com');
   final TextEditingController passwordController =
       TextEditingController(text: '12345678');
   final TextEditingController confirmpassController =
@@ -43,7 +35,6 @@ class _SignUpPageState extends State<SignUpPage> {
       GlobalKey<ScaffoldState>(); // For SnackBar
 
   String errorMessage = '';
-
 
   void _clearErrorMessage() {
     setState(() {
@@ -105,55 +96,56 @@ class _SignUpPageState extends State<SignUpPage> {
     );
 
     final signUpButton = Padding(
-  padding: const EdgeInsets.symmetric(vertical: 16.0),
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.lightBlueAccent,
+        ),
+        onPressed: () {
+          String email = emailController.text.trim();
+          String password = passwordController.text.trim();
+          String confirmPassword = confirmpassController.text.trim();
+
+          // Validate email format
+          if (!RegExp(
+                  r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z]+")
+              .hasMatch(email)) {
+            _showErrorSnackBar('Invalid email format.');
+            return; // Exit the function if email format is invalid
+          }
+
+          // Validate password and confirm password
+          if (password.isEmpty || confirmPassword.isEmpty) {
+            _showErrorSnackBar('Password fields cannot be empty.');
+            return; // Exit the function if password fields are empty
+          }
+
+          if (password != confirmPassword) {
+            _showErrorSnackBar('Passwords do not match.');
+            return; // Exit the function if passwords do not match
+          }
+
+          // Perform signup logic
+          signupBloc
+              .add(TriggerEmailPasswordEvent(email: email, password: password));
+          //navigate to the SignupOptions()
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SignupOptions(
+                        email: email,
+                        password: password,
+                      )
+                    )
+                  );
+
+        },
+        child: const Text('Next', style: TextStyle(color: Colors.white)),
       ),
-      backgroundColor: Colors.lightBlueAccent,
-    ),
-    onPressed: () {
-      String email = emailController.text.trim();
-      String password = passwordController.text.trim();
-      String confirmPassword = confirmpassController.text.trim();
-
-      // Validate email format
-      if (!RegExp(
-              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z]+")
-          .hasMatch(email)) {
-        _showErrorSnackBar('Invalid email format.');
-        return; // Exit the function if email format is invalid
-      }
-
-      // Validate password and confirm password
-      if (password.isEmpty || confirmPassword.isEmpty) {
-        _showErrorSnackBar('Password fields cannot be empty.');
-        return; // Exit the function if password fields are empty
-      }
-
-      if (password != confirmPassword) {
-        _showErrorSnackBar('Passwords do not match.');
-        return; // Exit the function if passwords do not match
-      }
-
-      // Perform signup logic
-      signupBloc.add(RegisterButtonPressed(
-        email: email,
-        password: password,
-        name: '',
-        agencyName: '',
-        type: '', // Pass the determined type
-        language: '',
-        country: '',
-        location: '',
-        description: '',
-      ));
-    },
-    child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
-  ),
-);
-
+    );
 
     final alreadyHave = Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -217,13 +209,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  // bool _validateUserInput( String email, String pass, String confirmpass) {
-  //   if (email.isEmpty || pass.isEmpty == confirmpass.isEmpty) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -238,7 +223,10 @@ class _SignUpPageState extends State<SignUpPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SignupOptions(),
+          builder: (context) => SignupOptions(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+          ),
           settings: RouteSettings(
               arguments: state), // Pass the signup state as an argument
         ),
@@ -247,23 +235,6 @@ class _SignUpPageState extends State<SignUpPage> {
       _showErrorSnackBar('Invalid signup state.');
     }
   }
- /*  void _handleSuccessfulSignup(SignupState state) {
-    Provider.of<AuthRepository>(context, listen: false).getToken().then((token) {
-      if (token != null) {
-        _storeToken(token);
-        // Navigate to appropriate screen based on signup success
-        if (state is UserSignupSuccessState) {
-          Navigator.pushNamed(context, '/user_dashboard');
-        } else if (state is AgencySignupSuccessState) {
-          Navigator.pushNamed(context, '/Agency_panel');
-        }
-      } else {
-        _showErrorSnackBar('Failed to retrieve token.');
-      }
-    }).catchError((error) {
-      _showErrorSnackBar('Error retrieving token: $error');
-    });
-  } */
 
   void _storeToken(String token) async {
     await TokenStorage.storeToken(token);

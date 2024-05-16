@@ -10,3 +10,4 @@ abstract class GuestEvent extends Equatable {
 }
 
 class GenerateGuestID extends GuestEvent {}
+

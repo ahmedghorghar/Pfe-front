@@ -10,10 +10,13 @@ abstract class SignupState extends Equatable {
 }
 
 class LogoutState extends SignupState {}
+
 class SignupInitState extends SignupState {}
 
 class SignupLoadingState extends SignupState {}
-class SignupSuccessState extends  SignupState{}
+
+class SignupSuccessState extends SignupState {}
+
 class SignupErrorState extends SignupState {
   final String message;
 
@@ -27,4 +30,71 @@ class UserSignupSuccessState extends SignupState {}
 
 class AgencySignupSuccessState extends SignupState {}
 
+class EmailPasswordProcessedState extends SignupState {
 
+}
+
+
+
+
+class SignupRoleSelectedState extends SignupState {
+  final String type;
+
+  const SignupRoleSelectedState(this.type);
+
+  @override
+  List<Object> get props => [type];
+}
+
+class SignupUserFieldsState extends SignupState {
+  final String name;
+  final String language;
+  final String country;
+ 
+  const SignupUserFieldsState({
+    required this.name,
+    required this.language,
+    required this.country,
+  });
+
+  @override
+  List<Object> get props => [name, language, country];
+}
+
+
+class SignupAgancyFieldsState extends SignupState {
+  final String agencyName;
+  final String location;
+  final String description;
+
+  const SignupAgancyFieldsState({
+    required this.agencyName,
+    required this.location,
+    required this.description,
+  });
+
+  @override
+  List<Object> get props => [agencyName, location, description];
+}
+
+class FinalizeSignupState extends SignupState {
+   final String name;
+  final String language;
+  final String country;
+ 
+  final String agencyName;
+  final String location;
+  final String description;
+
+  const FinalizeSignupState({
+     required this.name,
+    required this.language,
+    required this.country,
+    required this.agencyName,
+    required this.location,
+    required this.description,
+  });
+
+  @override
+  List<Object> get props => [agencyName, location, description, name, language, country];
+}

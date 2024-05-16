@@ -5,12 +5,10 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-// import 'package:path/path.dart';
-// import 'package:image_picker/image_picker.dart';
 import 'package:tataguid/storage/profil_storage.dart';
 
 class ProfileRepository {
-  static const String baseUrl = 'http://172.16.27.195:8080/profile'; // Replace with your backend URL
+  static const String baseUrl = 'http://192.168.1.9:8080/profile'; // Replace with your backend URL
 
  Future<String> uploadProfileImage(
     File imageFile, String token, String email) async {
@@ -36,11 +34,11 @@ class ProfileRepository {
       // print('Image URL: $imgUrl');
       return imgUrl;
     } else {
-      await ProfileStorage.storeEmail(email);
+      await ProfileUserStorage.storeEmail(email);
       throw Exception('Failed to upload profile image');
     }
   } catch (error) {
-    await ProfileStorage.storeEmail(email);
+    await ProfileUserStorage.storeEmail(email);
     throw error;
   }
 }

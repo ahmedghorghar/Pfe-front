@@ -1,3 +1,4 @@
+// lib/userPages/profilePage.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tataguid/blocs/profile/profile_bloc.dart';
 import 'package:tataguid/blocs/profile/profile_event.dart';
-import 'package:tataguid/blocs/profile/profile_state.dart';
 import 'package:tataguid/repository/profil_repo.dart';
 import 'package:tataguid/storage/profil_storage.dart';
 import 'package:tataguid/storage/token_storage.dart';
@@ -19,8 +19,7 @@ class Profilepage extends StatefulWidget {
 }
 
 class _ProfilepageState extends State<Profilepage> {
-  final ImagePicker _picker = ImagePicker(); // Initialize ImagePicker
-  XFile? _imageFile;
+
   bool showscrollWidget = false;
   bool status = false;
   String theme = "Light";
@@ -31,18 +30,25 @@ class _ProfilepageState extends State<Profilepage> {
   List<String> distances = ["M", "KM"];
 
   late ProfileBloc _profileBloc;
+  final ImagePicker _picker = ImagePicker(); // Initialize ImagePicker
+  XFile? _imageFile;
+  
 
   @override
   void initState() {
     super.initState();
     _profileBloc = ProfileBloc(profileRepository: ProfileRepository());
-    
+   
   }
+
+
 
   @override
   Widget build(BuildContext context) {
+
     double sW = MediaQuery.of(context).size.width;
     double sH = MediaQuery.of(context).size.height;
+    
     return BlocProvider(
       create: (context) => _profileBloc,
       child: Scaffold(
@@ -64,13 +70,14 @@ class _ProfilepageState extends State<Profilepage> {
                   Row(
                     children: [
                       FutureBuilder<String?>(
-                        future: ProfileStorage.getUserEmail(),
+                        future: ProfileUserStorage.getUserEmail(),
                         builder: (context, emailSnapshot) {
                           if (emailSnapshot.connectionState ==
                               ConnectionState.done) {
                             String? email = emailSnapshot.data;
                             return FutureBuilder<String?>(
-                              future: ProfileStorage.getProfileImage(email!),
+                              future:
+                                  ProfileUserStorage.getProfileImage(email!),
                               builder: (context, snapshot) {
                                 return imageProfile(snapshot);
                               },
@@ -80,10 +87,28 @@ class _ProfilepageState extends State<Profilepage> {
                           }
                         },
                       ),
-                      Text("Mrabet Lassade",
-                          style: GoogleFonts.afacad(
-                            textStyle: TextStyle(fontSize: sW * 0.06),
-                          )),
+                      FutureBuilder<String?>(
+                        future: ProfileUserStorage
+                            .getUserName(), // Get user's name from SharedPreferences
+                        builder: (context, nameSnapshot) {
+                          if (nameSnapshot.connectionState ==
+                              ConnectionState.done) {
+                            String? name = nameSnapshot.data;
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                  left: sW *0.05), // Adjust the left padding as needed
+                              child: Text(
+                                name ?? "Default Name",
+                                style: GoogleFonts.afacad(
+                                  textStyle: TextStyle(fontSize: sW * 0.06),
+                                ),
+                              ),
+                            );
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                      ),
                     ],
                   ),
                   SizedBox(height: sH * 0.04),
@@ -300,7 +325,7 @@ class _ProfilepageState extends State<Profilepage> {
         _imageFile = pickedFile;
       });
       String? token = await TokenStorage.getToken();
-      String? email = await ProfileStorage.getUserEmail();
+      String? email = await ProfileUserStorage.getUserEmail();
       if (token != null && email != null) {
         await uploadProfilePhoto(File(pickedFile.path), token, email);
       } else {
@@ -312,10 +337,10 @@ class _ProfilepageState extends State<Profilepage> {
   Future<void> uploadProfilePhoto(
       File imageFile, String token, String email) async {
     // Clear the old profile image path
-    await ProfileStorage.deleteProfileImage(email);
+    await ProfileUserStorage.deleteProfileImage(email);
 
     // Store the new profile image path
-    await ProfileStorage.storeProfileImage(email, imageFile.path);
+    await ProfileUserStorage.storeProfileImage(email, imageFile.path);
 
     // Add the UploadProfileImage event to the ProfileBloc
     context.read<ProfileBloc>().add(

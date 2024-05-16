@@ -22,6 +22,12 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+/* def KEY_ALIAS = keystoreProperties['keyAlias']
+def KEY_PASSWORD = keystoreProperties['keyPassword']
+def STORE_FILE = keystoreProperties['storeFile']
+def STORE_PASSWORD = keystoreProperties['storePassword'] */
+
+
 android {
     namespace "com.example.tataguid"
     compileSdkVersion flutter.compileSdkVersion
@@ -45,17 +51,27 @@ android {
         applicationId "com.example.tataguid"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-    }
 
+        multiDexEnabled true
+
+    }
+//login_key
+    signingConfigs {
+        debug {
+            keyAlias 'login-key'
+            storePassword 'mrabet'
+            storeFile file('login-key.jks')
+            keyPassword 'mrabet'
+        }
+    }
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+            // Add other configurations for release build type if needed
         }
     }
 }
@@ -64,4 +80,6 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation 'com.android.support:multidex:2.0.1'
+}

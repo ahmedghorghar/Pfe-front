@@ -22,6 +22,7 @@ class LoginButtonPressed extends LoginEvent {
 }
 
 class NavigateToLogin extends LoginEvent {
-  // Specify the destination screen or route
   const NavigateToLogin();
 }
+
+class LogoutEvent extends LoginEvent {}
