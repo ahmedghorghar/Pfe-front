@@ -1,13 +1,15 @@
 // lib/ui/get_contacts.dart
-
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tataguid/userPages/favoritPage.dart';
+import 'package:tataguid/userPages/homePage.dart';
 import 'package:tataguid/userPages/profilePage.dart';
+import 'package:tataguid/models/place_model.dart';
+import 'package:tataguid/userPages/searchPage.dart';
 
 class UserPage extends StatefulWidget {
-    final GoogleSignInAccount? user; // Change the type to allow null
+  final GoogleSignInAccount? user;
 
   const UserPage({Key? key, this.user}) : super(key: key);
 
@@ -16,13 +18,26 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  int _selectedIndex = 0; // Track selected index for navigation
+  int _selectedIndex = 0;
+  Set<String> favoriteIds = {};
+  List<PlaceModel> favoritePlaces = [];
+
+  void _toggleFavorite(PlaceModel place) {
+    setState(() {
+      if (favoriteIds.contains(place.id)) {
+        favoriteIds.remove(place.id);
+        favoritePlaces.removeWhere((element) => element.id == place.id);
+      } else {
+        favoriteIds.add(place.id);
+        favoritePlaces.add(place);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder( // Wrap with LayoutBuilder for responsive adjustments
+    return LayoutBuilder(
       builder: (context, constraints) {
-        // Calculate responsive padding based on screen width
         final double responsivePadding = constraints.maxWidth < 600 ? 15.0 : 30.0;
 
         return Scaffold(
@@ -30,14 +45,13 @@ class _UserPageState extends State<UserPage> {
             color: Colors.black,
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: responsivePadding, // Apply responsive padding
+                horizontal: responsivePadding,
                 vertical: 20.0,
               ),
               child: GNav(
                 rippleColor: Colors.grey,
                 hoverColor: Colors.grey,
                 haptic: true,
-                // tabBorderRadius: 15,
                 curve: Curves.linear,
                 backgroundColor: Colors.black,
                 color: Colors.white,
@@ -69,15 +83,14 @@ class _UserPageState extends State<UserPage> {
               ),
             ),
           ),
-          body: IndexedStack( // Use IndexedStack for content based on selected index
+          body: IndexedStack(
             index: _selectedIndex,
-            children: const [
-              // Replace these with your content widgets for each tab
-              Center(child: Text('Home Content')),
-              Center(child: Text('search Content')),
-         //     MapPage(),
-              Center(child: Text('Favorites Content')),
-              Profilepage(), // Remove toggleTheme here
+            children: [
+              UserHome(favorites: favoriteIds, onFavoriteToggle: _toggleFavorite),
+              MapPage(),
+              //Center(child: Text('Search Content')),
+              FavoritesPage(favoritePlaces: favoritePlaces),
+              ProfilePage(),
             ],
           ),
         );

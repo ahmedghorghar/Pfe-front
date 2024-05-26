@@ -17,6 +17,8 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
       emit(UploadInProgress());
       // Convert UploadModel to JSON
       final Map<String, dynamic> jsonData = event.uploadModel.toJson();
+      // Log the data being sent
+      print('Sending data to add place: $jsonData');
       // Call the repository method to add a new place
       await UploadRepository.addPlace(
         event.agencyId, // Pass agency ID here

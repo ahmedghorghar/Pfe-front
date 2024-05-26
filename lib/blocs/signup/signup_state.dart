@@ -15,6 +15,7 @@ class SignupInitState extends SignupState {}
 
 class SignupLoadingState extends SignupState {}
 
+
 class SignupSuccessState extends SignupState {}
 
 class SignupErrorState extends SignupState {
@@ -30,8 +31,14 @@ class UserSignupSuccessState extends SignupState {}
 
 class AgencySignupSuccessState extends SignupState {}
 
-class EmailPasswordProcessedState extends SignupState {
+class EmailPasswordProcessedState extends SignupState {}
 
+class EmailExistState extends SignupState {
+    final String Existmessage;
+const EmailExistState(this.Existmessage);
+
+  @override
+  List<Object> get props => [Existmessage];
 }
 
 
@@ -58,7 +65,7 @@ class SignupUserFieldsState extends SignupState {
   });
 
   @override
-  List<Object> get props => [name, language, country];
+  List<Object> get props => [name, language, country]; 
 }
 
 
@@ -66,25 +73,27 @@ class SignupAgancyFieldsState extends SignupState {
   final String agencyName;
   final String location;
   final String description;
+  final String PhoneNumber;
 
   const SignupAgancyFieldsState({
     required this.agencyName,
     required this.location,
     required this.description,
+    required this.PhoneNumber,
   });
 
   @override
-  List<Object> get props => [agencyName, location, description];
+  List<Object> get props => [agencyName, location, description, PhoneNumber]; 
 }
 
 class FinalizeSignupState extends SignupState {
    final String name;
   final String language;
   final String country;
- 
   final String agencyName;
   final String location;
   final String description;
+  final String PhoneNumber;
 
   const FinalizeSignupState({
      required this.name,
@@ -93,8 +102,9 @@ class FinalizeSignupState extends SignupState {
     required this.agencyName,
     required this.location,
     required this.description,
+    required this.PhoneNumber,
   });
 
   @override
-  List<Object> get props => [agencyName, location, description, name, language, country];
+  List<Object> get props => [agencyName, location, description, name, language, country, PhoneNumber];
 }

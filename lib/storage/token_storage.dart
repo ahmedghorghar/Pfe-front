@@ -24,4 +24,12 @@ class TokenStorage {
   static Future<String?> getUserType() async {
     return await _storage.read(key: 'user_type');
   }
+
+  static Future<void> storeAgencyId(String agencyId) async {
+    await _storage.write(key: 'agency_id', value: agencyId);
+  }
+
+  static Future<String?> getAgencyId() async {
+    return await _storage.read(key: 'agency_id');
+  }
 }

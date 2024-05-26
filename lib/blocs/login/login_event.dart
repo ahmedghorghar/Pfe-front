@@ -1,6 +1,8 @@
 // lib/blocs/login/login_event.dart
 
 import 'package:equatable/equatable.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 
 abstract class LoginEvent extends Equatable {
   const LoginEvent();
@@ -26,3 +28,12 @@ class NavigateToLogin extends LoginEvent {
 }
 
 class LogoutEvent extends LoginEvent {}
+
+class GoogleSignInEvent extends LoginEvent {
+  final dynamic user;
+
+  const GoogleSignInEvent({required this.user});
+
+  @override
+    List<Object> get props => [user];
+}

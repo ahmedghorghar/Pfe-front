@@ -1,12 +1,10 @@
-// lib/ui/signup_option.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:tataguid/blocs/signup/signup_event.dart';
 import 'package:tataguid/blocs/signup/signup_state.dart';
+import 'package:tataguid/ui/LoginUi.dart';
 import 'package:tataguid/ui/get_contacts.dart';
-import 'package:tataguid/ui/post_contacts.dart';
 
 import '../blocs/signup/signup_bloc.dart';
 import '../widgets/BuildTextfield.dart';
@@ -30,19 +28,26 @@ class _SignupOptionsState extends State<SignupOptions> {
   PageController _controller = PageController();
   late SignupBloc _signupBloc;
 
-  final TextEditingController agencyNameController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController languageController = TextEditingController();
-  final TextEditingController countryController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController nameController =
+      TextEditingController(text: 'userName');
+  final TextEditingController languageController =
+      TextEditingController(text: 'userLaguage');
+  final TextEditingController countryController =
+      TextEditingController(text: 'userCountry');
+  final TextEditingController agencyNameController =
+      TextEditingController(text: 'agencyName');
+  final TextEditingController locationController =
+      TextEditingController(text: 'agencyLocation');
+  final TextEditingController descriptionController =
+      TextEditingController(text: 'agencySecription');
+  final TextEditingController phoneNumberController =
+      TextEditingController(text: '25418279');
   String selectedRole = ''; // Variable to store the selected role
 
   @override
   void initState() {
     super.initState();
     _signupBloc = BlocProvider.of<SignupBloc>(context);
-    _current = true; // Set default value for _current
   }
 
   @override
@@ -53,7 +58,7 @@ class _SignupOptionsState extends State<SignupOptions> {
       body: BlocListener<SignupBloc, SignupState>(
           listener: (context, state) {
             if (state is SignupRoleSelectedState) {
-              
+              // _selectedRole();
             }
             if (state is UserSignupSuccessState) {
               _handleUserSuccessfulSignup();
@@ -61,6 +66,8 @@ class _SignupOptionsState extends State<SignupOptions> {
               _handleAgencySuccessfulSignup();
             } else if (state is SignupErrorState) {
               _showErrorSnackBar(state.message);
+            } else if (state is EmailExistState) {
+              _showExistmessageSnackBar(state.Existmessage);
             } else if (state is FinalizeSignupState) {
               _onFinalizeSignupEvent();
             }
@@ -159,15 +166,7 @@ class _SignupOptionsState extends State<SignupOptions> {
                               backgroundColor: Colors.lightBlueAccent,
                             ),
                             onPressed: () {
-                              if (_current) {
-                                // User role selected, navigate to user form page
-                                _controller.animateToPage(1,
-                                    duration: Duration(milliseconds: 10),
-                                    curve: Curves.easeIn);
-                              } else {
-                                // Agency role selected, navigate to agency form page directly
-                                _controller.jumpToPage(2);
-                              }
+                              _selectedRole();
                             },
                             child: Text("Next",
                                 style: TextStyle(
@@ -248,16 +247,7 @@ class _SignupOptionsState extends State<SignupOptions> {
                               ),
                               backgroundColor: Colors.lightBlueAccent,
                             ),
-                            onPressed: () {
-                              if (nameController.text.isEmpty ||
-                                  languageController.text.isEmpty ||
-                                  countryController.text.isEmpty) {
-                                _showErrorSnackBar(
-                                    "Please fill in all the details");
-                              } else {
-                                _handleUserSuccessfulSignup();
-                              }
-                            },
+                            onPressed: _onFinalizeSignupEvent,
                             child: Text(
                               "Sign Up",
                               style: TextStyle(
@@ -312,6 +302,17 @@ class _SignupOptionsState extends State<SignupOptions> {
                         ),
                         SizedBox(height: size.height * 0.03),
                         BuildTextFormField(
+                          'PhoneNumber',
+                          phoneNumberController,
+                          (value) {
+                            // Email validation logic
+                            return null;
+                          },
+                          TextInputType.text,
+                          Icons.add_ic_call_rounded,
+                        ),
+                        SizedBox(height: size.height * 0.03),
+                        BuildTextFormField(
                           'Description',
                           descriptionController,
                           (value) {
@@ -330,16 +331,7 @@ class _SignupOptionsState extends State<SignupOptions> {
                               ),
                               backgroundColor: Colors.lightBlueAccent,
                             ),
-                            onPressed: () {
-                              if (agencyNameController.text.isEmpty ||
-                                  descriptionController.text.isEmpty ||
-                                  locationController.text.isEmpty) {
-                                _showErrorSnackBar(
-                                    "Please fill in all the details");
-                              } else {
-                                _handleAgencySuccessfulSignup();
-                              }
-                            },
+                            onPressed: _onFinalizeSignupEvent,
                             child: Text(
                               "Sign Up",
                               style: TextStyle(
@@ -365,48 +357,112 @@ class _SignupOptionsState extends State<SignupOptions> {
       ),
     );
   }
+  
+  void _showExistmessageSnackBar(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.red,
+    ),
+  );
+}
+
+  void _selectedRole() {
+    if (_current == true) {
+      // User role selected, navigate to user form page
+      selectedRole = "User"; // Update selectedRole
+      _signupBloc.add(TriggerRoleSelectionEvent(
+        type: "User",
+      ));
+      _controller.animateToPage(1,
+          duration: Duration(milliseconds: 10), curve: Curves.easeIn);
+    } else {
+      // Agency role selected, navigate to agency form page directly
+      selectedRole = "Agency"; // Update selectedRole
+      _signupBloc.add(TriggerRoleSelectionEvent(
+        type: "Agency",
+      ));
+      _controller
+        ..animateToPage(2,
+            duration: Duration(milliseconds: 10), curve: Curves.easeIn);
+    }
+  }
 
   void _handleUserSuccessfulSignup() {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => UserPage()));
+    if (nameController.text.isEmpty ||
+        languageController.text.isEmpty ||
+        countryController.text.isEmpty) {
+      _showErrorSnackBar("Please fill in all the details");
+      return;
+    }
+    _navigateToUserPage();
+  }
+
+  void _navigateToUserPage() {
     _signupBloc.add(SignupUserFieldsEvent(
       name: nameController.text,
       language: languageController.text,
       country: countryController.text,
     ));
-  }
-
-
-
-
-
-  void _handleAgencySuccessfulSignup() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => AgencyPanelScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => UserPage()),
     );
+  }
+
+  void _handleAgencySuccessfulSignup() {
     _signupBloc.add(SignupAgencyFieldsEvent(
       agencyName: agencyNameController.text,
       description: descriptionController.text,
       location: locationController.text,
+      phoneNumber: phoneNumberController.text,
     ));
+    // Navigate to Login UI
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginUi()),
+    );
+
+    // Show SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            "Your registration request will be checked soon by the admin."),
+        backgroundColor: Colors.lightBlue, // Adjust color as needed
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _onFinalizeSignupEvent() {
-    if (_current) {
-      // Navigate to UserPage
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => UserPage()),
-      );
-    } else {
-      // Navigate to AgencyPanelScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => AgencyPanelScreen()),
-      );
+    if (selectedRole == "User") {
+      _signupBloc.add(FinalizeSignupEvent(
+        email: widget.email,
+        password: widget.password,
+        name: nameController.text,
+        agencyName: '', // No need to pass agencyName for user
+        type: selectedRole.toLowerCase(), // Convert to lowercase
+        language: languageController.text,
+        country: countryController.text,
+        location: '', // No need to pass location for user
+        description: '', // No need to pass description for user
+        phoneNumber: '', // No need to pass phoneNumber for user
+      ));
+    } else if (selectedRole == "Agency") {
+      _signupBloc.add(FinalizeSignupEvent(
+        email: widget.email,
+        password: widget.password,
+        name: '', // No need to pass name for agency
+        agencyName: agencyNameController.text,
+        type: selectedRole.toLowerCase(), // Convert to lowercase
+        language: '', // No need to pass language for agency
+        country: '', // No need to pass country for agency
+        location: locationController.text,
+        description: descriptionController.text,
+        phoneNumber: phoneNumberController.text,
+      ));
     }
   }
 }
+
+

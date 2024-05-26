@@ -1,7 +1,4 @@
-// lib/ui/post_contacts.dart
-
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:tataguid/agencyPages/FormPage.dart';
 import 'package:tataguid/agencyPages/MessagePage.dart';
@@ -17,6 +14,7 @@ class AgencyPanelScreen extends StatefulWidget {
 
 class _AgencyPanelScreenState extends State<AgencyPanelScreen> {
   int _selectedIndex = 0;
+  bool _isBottomNavBarVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -30,45 +28,47 @@ class _AgencyPanelScreenState extends State<AgencyPanelScreen> {
             constraints.maxWidth < 600 ? 15.0 : 30.0;
 
         return Scaffold(
-          bottomNavigationBar: Container(
-            color: Colors.black,
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: responsivePadding, // Apply responsive padding
-                vertical: 20.0,
-              ),
-              child: GNav(
-                rippleColor: Colors.grey,
-                hoverColor: Colors.grey,
-                haptic: true,
-                // tabBorderRadius: 15,
-                curve: Curves.linear,
-                backgroundColor: Colors.black,
-                color: Colors.white,
-                activeColor: Colors.white,
-                tabBackgroundColor: Colors.grey.shade800,
-                gap: 8,
-                onTabChange: (index) {
-                  setState(() => _selectedIndex = index);
-                },
-                padding: const EdgeInsets.all(16),
-                tabs: const [
-                  GButton(
-                    icon: Icons.home,
-                    text: 'Bookings',
+          bottomNavigationBar: _isBottomNavBarVisible
+              ? Container(
+                  color: Colors.black,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: responsivePadding, // Apply responsive padding
+                      vertical: 20.0,
+                    ),
+                    child: GNav(
+                      rippleColor: Colors.grey,
+                      hoverColor: Colors.grey,
+                      haptic: true,
+                      // tabBorderRadius: 15,
+                      curve: Curves.linear,
+                      backgroundColor: Colors.black,
+                      color: Colors.white,
+                      activeColor: Colors.white,
+                      tabBackgroundColor: Colors.grey.shade800,
+                      gap: 8,
+                      onTabChange: (index) {
+                        setState(() => _selectedIndex = index);
+                      },
+                      padding: const EdgeInsets.all(16),
+                      tabs: const [
+                        GButton(
+                          icon: Icons.home,
+                          text: 'Bookings',
+                        ),
+                        GButton(
+                          icon: Icons.message_outlined,
+                          text: 'Messages',
+                        ),
+                        GButton(
+                          icon: Icons.account_circle_outlined,
+                          text: 'Profile',
+                        ),
+                      ],
+                    ),
                   ),
-                  GButton(
-                    icon: Icons.message_outlined,
-                    text: 'Messages',
-                  ),
-                  GButton(
-                    icon: Icons.account_circle_outlined,
-                    text: 'Profile',
-                  ),
-                ],
-              ),
-            ),
-          ),
+                )
+              : null,
           body: IndexedStack(
             // Use IndexedStack for content based on selected index
             index: _selectedIndex,
@@ -77,12 +77,12 @@ class _AgencyPanelScreenState extends State<AgencyPanelScreen> {
               AgencyHome(),
               AgencyChats(),
               AgencyProfile(),
-              Profilepage(), // Remove toggleTheme here
+              ProfilePage(), // Remove toggleTheme here
             ],
           ),
-         floatingActionButton: InkWell(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AdminForm(),));
+          floatingActionButton: InkWell(
+            onTap: () {
+              _navigateToFormPage(context);
             },
             child: Container(
               width: 50,
@@ -90,12 +90,32 @@ class _AgencyPanelScreenState extends State<AgencyPanelScreen> {
               decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(25),
-                  boxShadow: [BoxShadow(color: Colors.black, blurRadius: 5)]),
-            child: Image.asset("assets/agencyImages/upload.png"),
-           ),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black, blurRadius: 5)
+                  ]),
+              child: Image.asset("assets/agencyImages/upload.png"),
+            ),
           ),
         );
       },
     );
+  }
+
+  void _navigateToFormPage(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AgencyForm(),
+      ),
+    ).then((_) {
+      // After navigating back from AgencyForm, show the bottom navigation bar
+      setState(() {
+        _isBottomNavBarVisible = true;
+      });
+    });
+
+    // Hide the bottom navigation bar when navigating to AgencyForm
+    setState(() {
+      _isBottomNavBarVisible = false;
+    });
   }
 }

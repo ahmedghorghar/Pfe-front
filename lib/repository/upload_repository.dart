@@ -9,7 +9,7 @@ class UploadRepository {
   // Method for adding a new place
   static Future<void> addPlace(String agencyId, Map<String, dynamic> data, String token) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/add-places'),
+      Uri.parse('$baseUrl/uploads/add-places'),
       body: jsonEncode(data),
       headers: {
         'Content-Type': 'application/json',
@@ -21,8 +21,9 @@ class UploadRepository {
       // Place added successfully
       print('Place added successfully');
     } else {
-      // Error occurred
       print('Error adding place: ${response.statusCode}');
+      print('Response body: ${response.body}'); // Log response body for more details
+    
     }
   }
 

@@ -98,5 +98,15 @@ class ProfileAgencyStorage{
     
   }
 
+   static Future<void> savePhoneNumber(String phoneNumber) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('phoneNumber', phoneNumber);
+  }
+
+  static Future<String?> getPhoneNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('phoneNumber');
+  }
+
 
 }

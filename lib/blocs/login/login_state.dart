@@ -39,8 +39,18 @@ class LoginErrorState extends LoginState {
   @override
   List<Object> get props => [message];
 }
+class LoginInitial extends LoginState {}
 
 class NavigateToAgencyPanel extends LoginState {}
 
 class NavigateToUserDashboard extends LoginState {}
 class LogoutSuccessState extends LoginState {}
+
+class LoginFailure extends LoginState {
+  final String error;
+
+  const LoginFailure({required this.error});
+
+  @override
+  List<Object> get props => [error];
+}

@@ -1,20 +1,30 @@
 // lib/main.dart
 
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:tataguid/agencyPages/ProfilePages/general_information_page.dart';
+import 'package:tataguid/agencyPages/ProfilePages/offers_promotions_page.dart';
+import 'package:tataguid/agencyPages/ProfilePages/settings_page.dart';
+import 'package:tataguid/agencyPages/homePage.dart';
+import 'package:tataguid/blocs/Bookingsblocs/booking_bloc.dart';
+import 'package:tataguid/blocs/getPlace/get_place_bloc.dart';
 import 'package:tataguid/blocs/guest/guest_bloc.dart';
 import 'package:tataguid/blocs/login/login_bloc.dart';
 import 'package:tataguid/blocs/profile/profile_bloc.dart';
 import 'package:tataguid/blocs/resetPassword/reset_password_bloc.dart';
 import 'package:tataguid/blocs/signup/signup_bloc.dart';
+import 'package:tataguid/blocs/uploadBloc/upload_bloc.dart';
+import 'package:tataguid/components/theme_manager.dart';
 import 'package:tataguid/pages/onboarding_page.dart';
 import 'package:tataguid/repository/auth_repo.dart';
-import 'package:provider/provider.dart';
+import 'package:tataguid/repository/booking_repository.dart';
+import 'package:tataguid/repository/get_places_repository.dart';
 import 'package:tataguid/repository/guest_repository.dart';
 import 'package:tataguid/repository/password_reset_repo.dart';
 import 'package:tataguid/repository/profil_repo.dart';
+import 'package:tataguid/repository/upload_repository.dart';
 import 'package:tataguid/ui/LoginUi.dart';
 import 'package:tataguid/ui/get_contacts.dart';
 import 'package:tataguid/ui/post_contacts.dart';
@@ -28,6 +38,9 @@ class TataGuid extends StatelessWidget {
     final ForgotPasswordRepository forgotPasswordRepository = ForgotPasswordRepository();
     final ProfileRepository profileRepository = ProfileRepository();
     final GuestRepository guestRepository = GuestRepository();
+    final UploadRepository uploadRepository = UploadRepository();
+    final PlaceRepository placeRepository = PlaceRepository();
+    final BookingRepository bookingRepository = BookingRepository();
 
     return MultiProvider(
       providers: [
@@ -50,24 +63,50 @@ class TataGuid extends StatelessWidget {
           create: (context) => GuestBloc(
               guestRepository: guestRepository),
         ),
+        BlocProvider<UploadBloc>(
+          create: (context) => UploadBloc(
+              uploadRepository: uploadRepository),
+        ),
+        BlocProvider<PlaceBloc>(
+          create: (context) => PlaceBloc(
+              placeRepository: placeRepository),
+        ),
+        BlocProvider<BookingBloc>(
+          create: (context) => BookingBloc(
+              bookingRepository: bookingRepository),
+        ),
+        ChangeNotifierProvider<ThemeManager>(
+          create: (context) => ThemeManager(),
+        ),
       ],
-        child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/login_ui',
-        routes: {
-          '/': (context) => OnboardingPage(),
-          '/user_dashboard': (context) => UserPage(),
-          '/agency_panel': (context) => AgencyPanelScreen(),
-          '/login_ui': (context) => LoginUi(), // Your login page
-          '/Guest': (context) => UserPage(),
-        },
-        onGenerateRoute: (settings) {
-          if (Platform.isAndroid || Platform.isIOS) {
-            return MaterialPageRoute(
-              builder: (context) => PlatformErrorScreen(),
-            );
-          }
-          return null;
+      child: Consumer<ThemeManager>(
+        builder: (context, themeManager, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            themeMode: themeManager.themeMode,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            initialRoute: '/login_ui',
+            routes: {
+              '/': (context) => OnboardingPage(),
+              '/user_dashboard': (context) => UserPage(),
+              '/agency_panel': (context) => AgencyPanelScreen(),
+              '/login_ui': (context) => LoginUi(), // Your login page
+              '/Guest': (context) => UserPage(),
+              '/general_information': (context) => GeneralInformationPage(),
+              '/offers_promotions': (context) => OffersPromotionsPage(),
+              '/settings': (context) => SettingsPage(),
+              '/agency_home': (context) => AgencyHome(),
+            },
+            onGenerateRoute: (settings) {
+              if (Platform.isAndroid || Platform.isIOS) {
+                return MaterialPageRoute(
+                  builder: (context) => PlatformErrorScreen(),
+                );
+              }
+              return null;
+            },
+          );
         },
       ),
     );

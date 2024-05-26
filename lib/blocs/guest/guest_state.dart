@@ -17,11 +17,12 @@ class GuestLoading extends GuestState {}
 
 class GuestLoaded extends GuestState {
   final String guestID;
+  final bool isGuest; // Add this flag
 
-  const GuestLoaded(this.guestID);
+  const GuestLoaded(this.guestID, {this.isGuest = true});
 
   @override
-  List<Object> get props => [guestID];
+  List<Object> get props => [guestID, isGuest];
 }
 
 class GuestError extends GuestState {

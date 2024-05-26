@@ -1,56 +1,43 @@
 // lib/userPages/profilePage.dart
-import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tataguid/blocs/profile/profile_bloc.dart';
-import 'package:tataguid/blocs/profile/profile_event.dart';
-import 'package:tataguid/repository/profil_repo.dart';
+import 'package:tataguid/blocs/login/login_bloc.dart';
+import 'package:tataguid/blocs/login/login_event.dart';
+import 'package:tataguid/components/theme_manager.dart';
 import 'package:tataguid/storage/profil_storage.dart';
-import 'package:tataguid/storage/token_storage.dart';
+import 'package:tataguid/userPages/ProfilComponents/about_tataguid_page.dart';
+import 'package:tataguid/userPages/ProfilComponents/rate_app_page.dart';
+import 'package:tataguid/userPages/ProfilComponents/share_feedback_page.dart';
+import 'package:tataguid/userPages/ProfilComponents/user_bookings_page.dart';
 
-class Profilepage extends StatefulWidget {
-  const Profilepage({Key? key}) : super(key: key);
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
-  State<Profilepage> createState() => _ProfilepageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilepageState extends State<Profilepage> {
-
-  bool showscrollWidget = false;
-  bool status = false;
+class _ProfilePageState extends State<ProfilePage> {
+  bool showSettings = false;
   String theme = "Light";
   List<String> themes = ['Light', 'Dark'];
-  String? temperature = "°F";
+  String temperature = "°F";
   List<String> temperatures = ["°F", "°C"];
-  String? distance = "M";
+  String distance = "M";
   List<String> distances = ["M", "KM"];
-
-  late ProfileBloc _profileBloc;
-  final ImagePicker _picker = ImagePicker(); // Initialize ImagePicker
+  final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
-  
-
-  @override
-  void initState() {
-    super.initState();
-    _profileBloc = ProfileBloc(profileRepository: ProfileRepository());
-   
-  }
-
-
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
 
-    double sW = MediaQuery.of(context).size.width;
-    double sH = MediaQuery.of(context).size.height;
-    
     return BlocProvider(
-      create: (context) => _profileBloc,
+      create: (context) => BlocProvider.of<LoginBloc>(context),
       child: Scaffold(
         body: SafeArea(
           child: Container(
@@ -60,13 +47,13 @@ class _ProfilepageState extends State<Profilepage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Profile & Settings",
-                      style: GoogleFonts.afacad(
+                      style: GoogleFonts.lato(
                         textStyle: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.w700,
-                            fontSize: sW * 0.08),
+                            fontSize: screenWidth * 0.08),
                       )),
-                  SizedBox(height: sH * 0.04),
+                  SizedBox(height: screenHeight * 0.04),
                   Row(
                     children: [
                       FutureBuilder<String?>(
@@ -88,19 +75,19 @@ class _ProfilepageState extends State<Profilepage> {
                         },
                       ),
                       FutureBuilder<String?>(
-                        future: ProfileUserStorage
-                            .getUserName(), // Get user's name from SharedPreferences
+                        future: ProfileUserStorage.getUserName(),
                         builder: (context, nameSnapshot) {
                           if (nameSnapshot.connectionState ==
                               ConnectionState.done) {
                             String? name = nameSnapshot.data;
                             return Padding(
-                              padding: EdgeInsets.only(
-                                  left: sW *0.05), // Adjust the left padding as needed
+                              padding:
+                                  EdgeInsets.only(left: screenWidth * 0.05),
                               child: Text(
                                 name ?? "Default Name",
-                                style: GoogleFonts.afacad(
-                                  textStyle: TextStyle(fontSize: sW * 0.06),
+                                style: GoogleFonts.lato(
+                                  textStyle:
+                                      TextStyle(fontSize: screenWidth * 0.06),
                                 ),
                               ),
                             );
@@ -111,110 +98,66 @@ class _ProfilepageState extends State<Profilepage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: sH * 0.04),
+                  SizedBox(height: screenHeight * 0.04),
                   ListTile(
                     onTap: () {
                       setState(() {
-                        showscrollWidget = !showscrollWidget;
+                        showSettings = !showSettings;
                       });
                     },
                     leading: Icon(Icons.settings),
                     title: Text("Settings",
-                        style: GoogleFonts.afacad(
+                        style: GoogleFonts.lato(
                           textStyle: TextStyle(
-                              fontSize: sW * 0.05, fontWeight: FontWeight.w500),
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
                         )),
                     trailing: Icon(Icons.keyboard_arrow_down),
                   ),
-                  if (showscrollWidget)
+                  if (showSettings)
                     Container(
-                      margin: EdgeInsets.only(left: sW * 0.1),
+                      margin: EdgeInsets.only(left: screenWidth * 0.1),
                       child: Column(
                         children: [
-                          ListTile(
-                            title: Text("Application Theme"),
-                            trailing: SizedBox(
-                              width: sW * 0.3,
-                              child: DropdownButtonFormField<String>(
-                                value: theme,
-                                icon: Icon(Icons.arrow_drop_down),
-                                menuMaxHeight: 200,
-                                items: themes.map((String value) {
-                                  return DropdownMenuItem(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                                isDense: true,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                ),
-                                onChanged: (String? newValue) {},
-                              ),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text("Temperature"),
-                            trailing: SizedBox(
-                              width: sW * 0.3,
-                              child: DropdownButtonFormField<String>(
-                                value: temperature,
-                                icon: Icon(Icons.arrow_drop_down),
-                                menuMaxHeight: 200,
-                                items: temperatures.map((String value) {
-                                  return DropdownMenuItem(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                                isDense: true,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                ),
-                                onChanged: (String? newvalue) {
-                                  setState(() {
-                                    temperature = newvalue!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          ListTile(
-                            title: Text("Distance"),
-                            trailing: SizedBox(
-                              width: sW * 0.3,
-                              child: DropdownButtonFormField<String>(
-                                value: distance,
-                                icon: Icon(Icons.arrow_drop_down),
-                                menuMaxHeight: 200,
-                                items: distances.map((String value) {
-                                  return DropdownMenuItem(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                                isDense: true,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                ),
-                                onChanged: (String? newvalue) {
-                                  setState(() {
-                                    distance = newvalue!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
+                          settingsOption("Application Theme", theme, themes,
+                              (newValue) {
+                            setState(() {
+                              theme = newValue!;
+                              if (theme == "Dark") {
+                                context
+                                    .read<ThemeManager>()
+                                    .setTheme(ThemeMode.dark);
+                              } else {
+                                context
+                                    .read<ThemeManager>()
+                                    .setTheme(ThemeMode.light);
+                              }
+                            });
+                          }),
+                          settingsOption(
+                              "Temperature", temperature, temperatures,
+                              (newValue) {
+                            setState(() {
+                              temperature = newValue!;
+                            });
+                          }),
+                          settingsOption("Distance", distance, distances,
+                              (newValue) {
+                            setState(() {
+                              distance = newValue!;
+                            });
+                          }),
                         ],
                       ),
                     ),
                   Divider(),
                   ListTile(
                     leading: Icon(Icons.monetization_on_rounded),
-                    title: Text("Restore purchases",
-                        style: GoogleFonts.afacad(
+                    title: Text("Restore Purchases",
+                        style: GoogleFonts.lato(
                           textStyle: TextStyle(
-                              fontSize: sW * 0.05, fontWeight: FontWeight.w500),
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
                         )),
                     trailing: Icon(Icons.arrow_forward_ios_rounded),
                   ),
@@ -222,21 +165,88 @@ class _ProfilepageState extends State<Profilepage> {
                   ListTile(
                     leading: Icon(Icons.star_border_outlined),
                     title: Text("Rate the App",
-                        style: GoogleFonts.afacad(
+                        style: GoogleFonts.lato(
                           textStyle: TextStyle(
-                              fontSize: sW * 0.05, fontWeight: FontWeight.w500),
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
                         )),
                     trailing: Icon(Icons.arrow_forward_ios_rounded),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => RateAppPage()),
+                      );
+                    },
                   ),
                   Divider(),
                   ListTile(
                     leading: Icon(Icons.message_outlined),
-                    title: Text("Share feedback",
-                        style: GoogleFonts.afacad(
+                    title: Text("Share Feedback",
+                        style: GoogleFonts.lato(
                           textStyle: TextStyle(
-                              fontSize: sW * 0.05, fontWeight: FontWeight.w500),
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
                         )),
                     trailing: Icon(Icons.arrow_forward_ios_rounded),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ShareFeedbackPage()),
+                      );
+                    },
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(Icons.info_outline),
+                    title: Text("About TataGuid",
+                        style: GoogleFonts.lato(
+                          textStyle: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
+                        )),
+                    trailing: Icon(Icons.arrow_forward_ios_rounded),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AboutTataGuidPage()),
+                      );
+                    },
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(Icons.book_online),
+                    title: Text("Your Bookings",
+                        style: GoogleFonts.lato(
+                          textStyle: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
+                        )),
+                    trailing: Icon(Icons.arrow_forward_ios_rounded),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UserBookingsPage()),
+                      );
+                    },
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(Icons.logout),
+                    title: Text("Logout",
+                        style: GoogleFonts.lato(
+                          textStyle: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500),
+                        )),
+                    trailing: Icon(Icons.arrow_forward_ios_rounded),
+                    onTap: () {
+                      BlocProvider.of<LoginBloc>(context).add(LogoutEvent());
+                      // Navigate to login screen after logout
+                      Navigator.of(context).pushReplacementNamed('/login_ui');
+                    },
                   ),
                   Divider(),
                 ],
@@ -248,10 +258,32 @@ class _ProfilepageState extends State<Profilepage> {
     );
   }
 
-  @override
-  void dispose() {
-    _profileBloc.close();
-    super.dispose();
+  Widget settingsOption(String title, String currentValue, List<String> options,
+      ValueChanged<String?> onChanged) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    return ListTile(
+      title: Text(title),
+      trailing: SizedBox(
+        width: screenWidth * 0.3,
+        child: DropdownButtonFormField<String>(
+          value: currentValue,
+          icon: Icon(Icons.arrow_drop_down),
+          menuMaxHeight: 200,
+          items: options.map((String value) {
+            return DropdownMenuItem(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          isDense: true,
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+          ),
+          onChanged: onChanged,
+        ),
+      ),
+    );
   }
 
   Widget BottomSheet() {
@@ -264,10 +296,8 @@ class _ProfilepageState extends State<Profilepage> {
       ),
       child: Column(
         children: <Widget>[
-          Text("Choose a Profile photo", style: TextStyle(fontSize: 20.0)),
-          SizedBox(
-            height: 20,
-          ),
+          Text("Choose a Profile Photo", style: TextStyle(fontSize: 20.0)),
+          SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -286,24 +316,24 @@ class _ProfilepageState extends State<Profilepage> {
                 label: Text("Gallery"),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
   Widget imageProfile(AsyncSnapshot<String?> snapshot) {
-    return Stack(
-      children: <Widget>[
+    return Center(
+      child: Stack(children: <Widget>[
         CircleAvatar(
-          radius: 60.0,
-          backgroundImage: snapshot.data != null
-              ? FileImage(File(snapshot.data!)) as ImageProvider<Object>?
-              : AssetImage('assets/Profileimage.png'),
+          radius: 50.0,
+          backgroundImage: snapshot.hasData
+              ? NetworkImage(snapshot.data!)
+              : AssetImage('assets/Profileimage.png') as ImageProvider,
         ),
         Positioned(
-          bottom: 1.0,
-          right: 30.0,
+          bottom: 0.0,
+          right: 0.0,
           child: InkWell(
             onTap: () {
               showModalBottomSheet(
@@ -311,40 +341,21 @@ class _ProfilepageState extends State<Profilepage> {
                 builder: ((builder) => BottomSheet()),
               );
             },
-            child: Icon(Icons.camera_alt, color: Colors.teal, size: 28.0),
+            child: Icon(
+              Icons.camera_alt,
+              color: Colors.teal,
+              size: 28.0,
+            ),
           ),
         ),
-      ],
+      ]),
     );
   }
 
   void takePhoto(ImageSource source) async {
-    final XFile? pickedFile = await _picker.pickImage(source: source);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = pickedFile;
-      });
-      String? token = await TokenStorage.getToken();
-      String? email = await ProfileUserStorage.getUserEmail();
-      if (token != null && email != null) {
-        await uploadProfilePhoto(File(pickedFile.path), token, email);
-      } else {
-        print('token or email is null: $token, $email');
-      }
-    }
-  }
-
-  Future<void> uploadProfilePhoto(
-      File imageFile, String token, String email) async {
-    // Clear the old profile image path
-    await ProfileUserStorage.deleteProfileImage(email);
-
-    // Store the new profile image path
-    await ProfileUserStorage.storeProfileImage(email, imageFile.path);
-
-    // Add the UploadProfileImage event to the ProfileBloc
-    context.read<ProfileBloc>().add(
-          UploadProfileImage(imageFile: imageFile, token: token, email: email),
-        );
+    final pickedFile = await _picker.pickImage(source: source);
+    setState(() {
+      _imageFile = pickedFile;
+    });
   }
 }

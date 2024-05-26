@@ -61,5 +61,23 @@
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Used to demonstrate image picker plugin</string>
 
+	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+	<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>app</string>
+    </array>
+    <key>CFBundleURLName</key>
+    <string>tataguid.com</string>
+  </dict>
+</array>
+
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>tel</string>
+</array>
+
 </dict>
 </plist>

@@ -5,17 +5,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tataguid/blocs/signup/signup_bloc.dart';
 import 'package:tataguid/blocs/signup/signup_event.dart';
 import 'package:tataguid/blocs/signup/signup_state.dart';
-import 'package:flutter/material.dart'
-    show ScaffoldMessenger; // Use 'material.dart'
+import 'package:flutter/material.dart'show ScaffoldMessenger; // Use 'material.dart'
 import 'package:provider/provider.dart';
 import 'package:tataguid/components/my_textfield.dart';
-import 'package:tataguid/models/model.dart';
+import 'package:tataguid/models/User.dart';
 import 'package:tataguid/repository/auth_repo.dart';
 import 'package:tataguid/storage/token_storage.dart';
 import 'package:tataguid/ui/LoginUi.dart';
 import 'package:tataguid/ui/signup_option.dart';
 import 'package:tataguid/widgets/BuildTextfield.dart';
-
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -26,7 +24,9 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController emailController =
-      TextEditingController(text: 'gg@gmail.com');
+      TextEditingController(text: 'raserfinblade@gmail.com');
+  /* final TextEditingController emailController =
+      TextEditingController(text: 'gg@gmail.com'); */
   final TextEditingController passwordController =
       TextEditingController(text: '12345678');
   final TextEditingController confirmpassController =
@@ -117,6 +117,10 @@ class _SignUpPageState extends State<SignUpPage> {
             return; // Exit the function if email format is invalid
           }
 
+          if (!_isValidPassword(password)) {
+            _showErrorSnackBar('Password must be at least 8 characters long.');
+            return;
+          }
           // Validate password and confirm password
           if (password.isEmpty || confirmPassword.isEmpty) {
             _showErrorSnackBar('Password fields cannot be empty.');
@@ -138,10 +142,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   builder: (context) => SignupOptions(
                         email: email,
                         password: password,
-                      )
-                    )
-                  );
-
+                      )));
         },
         child: const Text('Next', style: TextStyle(color: Colors.white)),
       ),
@@ -220,12 +221,13 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _handleSuccessfulSignup(SignupState state) {
     if (state is UserSignupSuccessState || state is AgencySignupSuccessState) {
+      confirmpassController.clear();
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => SignupOptions(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
           ),
           settings: RouteSettings(
               arguments: state), // Pass the signup state as an argument
@@ -234,6 +236,17 @@ class _SignUpPageState extends State<SignUpPage> {
     } else {
       _showErrorSnackBar('Invalid signup state.');
     }
+  }
+
+  bool _isValidEmail(String email) {
+    return RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z]+")
+        .hasMatch(email);
+  }
+
+  bool _isValidPassword(String password) {
+    return password.length >= 8; // Password length validation
+    // You can include additional password validation logic here if needed
   }
 
   void _storeToken(String token) async {
