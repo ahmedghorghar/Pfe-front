@@ -38,20 +38,20 @@ class _AgencyFormState extends State<AgencyForm> {
     accessibility: '',
     phoneNumber: '',
   );
-  TextEditingController title = TextEditingController(text: 'visite');
-  TextEditingController placeName = TextEditingController(text: 'tataouine');
-  TextEditingController price = TextEditingController(text: '50dt');
-  TextEditingController description = TextEditingController(text: 'a description');
-  TextEditingController hotelName = TextEditingController(text: 'Dakianouss');
-  TextEditingController accessibility =TextEditingController(text: 'Wheelchair accessible');
-  TextEditingController start = TextEditingController(text: '25/05/2024');
-  TextEditingController end = TextEditingController(text: '30/05/2024');
-  TextEditingController from = TextEditingController(text: 'Douz');
-  TextEditingController to = TextEditingController(text: 'chneni');
-  TextEditingController checkIn = TextEditingController(text: '12:30');
-  TextEditingController checkOut = TextEditingController(text: '12:30');
-  TextEditingController duration = TextEditingController(text: '5 days');
-  TextEditingController phoneNumber = TextEditingController(text: '58 037 648');
+  TextEditingController title = TextEditingController(/* text: 'visite' */);
+  TextEditingController placeName = TextEditingController(/* text: 'tataouine' */);
+  TextEditingController price = TextEditingController(/* text: '50dt' */);
+  TextEditingController description = TextEditingController(/* text: 'a description' */);
+  TextEditingController hotelName = TextEditingController(/* text: 'Dakianouss' */);
+  TextEditingController accessibility =TextEditingController(/* text: 'Wheelchair accessible' */);
+  TextEditingController start = TextEditingController(/* text: '25/05/2024' */);
+  TextEditingController end = TextEditingController(/* text: '30/05/2024' */);
+  TextEditingController from = TextEditingController(/* text: 'Douz' */);
+  TextEditingController to = TextEditingController(/* text: 'chneni' */);
+  TextEditingController checkIn = TextEditingController(/* text: '12:30' */);
+  TextEditingController checkOut = TextEditingController(/* text: '12:30' */);
+  TextEditingController duration = TextEditingController(/* text: '5 days' */);
+  TextEditingController phoneNumber = TextEditingController(/* text: '58 037 648' */);
 
   @override
   void initState() {
@@ -962,30 +962,6 @@ class _AgencyFormState extends State<AgencyForm> {
                           ],
                         ),
                         SizedBox(height: screenHeight * 0.03),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Accessibility",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: screenWidth * 0.045),
-                            ),
-                            SizedBox(height: screenHeight * 0.01),
-                            TextFormField(
-                              controller: accessibility,
-                              decoration: InputDecoration(
-                                hintText: "Enter the Accessibility",
-                                filled: true,
-                                fillColor: Colors.white60,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: screenHeight * 0.03),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -1038,6 +1014,30 @@ class _AgencyFormState extends State<AgencyForm> {
                                     ),
                                   ),
                                 ],
+                              ),
+                            ),
+                          ],
+                        ),
+                          SizedBox(height: screenHeight * 0.03),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Accessibility",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: screenWidth * 0.045),
+                            ),
+                            SizedBox(height: screenHeight * 0.01),
+                            TextFormField(
+                              controller: accessibility,
+                              decoration: InputDecoration(
+                                hintText: "Enter the Accessibility",
+                                filled: true,
+                                fillColor: Colors.white60,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
                             ),
                           ],

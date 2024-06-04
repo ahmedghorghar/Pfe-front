@@ -1,4 +1,4 @@
-// lib/blocs/profil/profile_state.dart
+// lib/blocs/profile/profile_state.dart
 
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
@@ -15,12 +15,13 @@ class ProfileInitial extends ProfileState {}
 class ProfileLoading extends ProfileState {}
 
 class ProfileSuccess extends ProfileState {
-  final String imageUrl;
+  final String? imageUrl;
+  final String? message;
 
-  const ProfileSuccess({required this.imageUrl});
+  const ProfileSuccess({this.imageUrl, this.message});
 
   @override
-  List<Object> get props => [imageUrl];
+  List<Object> get props => [imageUrl ?? '', message ?? ''];
 }
 
 class ProfileFailure extends ProfileState {

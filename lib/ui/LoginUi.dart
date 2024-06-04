@@ -17,6 +17,7 @@ import 'package:tataguid/components/square_tile.dart';
 import 'package:tataguid/repository/google_sign_in_demo.dart';
 import 'package:tataguid/ui/SignUpUi.dart';
 import 'package:tataguid/ui/get_contacts.dart';
+import '../storage/token_storage.dart';
 import '../widgets/first_page.dart';
 import '../widgets/second_page.dart';
 import '../widgets/third_page.dart';
@@ -28,10 +29,14 @@ class LoginUi extends StatefulWidget {
 }
 
 class _LoginUiState extends State<LoginUi> with SingleTickerProviderStateMixin {
-  // TextEditingController emailController = TextEditingController(text: 'mbtlassdev@gmail.com');
-  TextEditingController emailController = TextEditingController(text: 'gg@gmail.com');
-  // TextEditingController emailController = TextEditingController(text: 'mrabet@gmail.com');
-  TextEditingController passwordController = TextEditingController(text: '12345678');
+  // TextEditingController emailController = TextEditingController(text: 'mbt.lass.dev@gmail.com' );
+  // TextEditingController emailController = TextEditingController(text: 'mrabetlassade@gmail.com' );
+  TextEditingController emailController = TextEditingController(text: 'ahmedgharghar@gmail.com' );
+  // TextEditingController emailController = TextEditingController(text: 'sana.souai@univ-cotedazur.fr' );
+  // TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController( text: 'Mrabet123&' );
+  // TextEditingController passwordController = TextEditingController();
+
   late LoginBloc authBloc;
   String errorMessage = '';
 
@@ -42,9 +47,9 @@ class _LoginUiState extends State<LoginUi> with SingleTickerProviderStateMixin {
   GlobalKey<FormState> formKey = GlobalKey();
   PageController pageController = PageController();
 
-  TextEditingController forget_email = TextEditingController(text: 'raserfinblade@gmail.com');
-  TextEditingController password = TextEditingController(text: '987654321');
-  TextEditingController confirmPasswordController = TextEditingController(text: '987654321');
+  TextEditingController forget_email = TextEditingController(/* text: 'raserfinblade@gmail.com' */);
+  TextEditingController password = TextEditingController(/* text: '987654321' */);
+  TextEditingController confirmPasswordController = TextEditingController(/* text: '987654321' */);
   TextEditingController verificationCode = TextEditingController();
   TextEditingController confirmPass = TextEditingController();
 
@@ -283,9 +288,10 @@ class _LoginUiState extends State<LoginUi> with SingleTickerProviderStateMixin {
                         ),
                         SizedBox(width: 5),
                         InkWell(
-                          onTap: () {
+                          onTap: () async {
                             BlocProvider.of<GuestBloc>(context)
                                 .add(GenerateGuestID());
+                            await TokenStorage.storeUserType('guest');
                             Navigator.pushNamed(context, '/Guest');
                           },
                           child: Text(

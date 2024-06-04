@@ -35,7 +35,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       OnboardingCard(
         image: Constants1.image,
         title: Constants1.title,
-        description: "here you can put a description",
+        description: Constants1.DESC,
         buttonText: Constants.NEXT,
         onPressed: () {
           _pageController.animateToPage(
@@ -47,8 +47,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       ),
       OnboardingCard(
         image: Constants2.image,
-        title: 'Welcom to TataGuid',
-        description: "here you can put a description",
+        title: Constants2.WelcomPage,
+        description: Constants2.DESC,
         buttonText: Constants.NEXT,
         onPressed: () {
           _pageController.animateToPage(
@@ -60,8 +60,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       ),
       OnboardingCard(
         image: Constants3.image,
-        title: 'Welcom to TataGuid',
-        description: "here you can put a description",
+        title: Constants3.WelcomPage,
+        description: Constants3.DESC,
         buttonText: Constants.DONE,
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => LoginUi()));

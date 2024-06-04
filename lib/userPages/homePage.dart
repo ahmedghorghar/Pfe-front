@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tataguid/blocs/getPlace/get_place_bloc.dart';
@@ -25,6 +26,8 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late TextEditingController _searchController;
   String _searchQuery = '';
+  bool _isSearching = true;
+  ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -35,12 +38,14 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
     );
     _searchController = TextEditingController();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -48,6 +53,22 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
     setState(() {
       _searchQuery = _searchController.text;
     });
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+      if (_isSearching) {
+        setState(() {
+          _isSearching = false;
+        });
+      }
+    } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+      if (!_isSearching) {
+        setState(() {
+          _isSearching = true;
+        });
+      }
+    }
   }
 
   void _showFavoriteAnimation() {
@@ -87,243 +108,209 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Discover Places',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Discover Places',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.deepPurple,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search, size: 28),
-            onPressed: () {
-              final currentState = BlocProvider.of<PlaceBloc>(context).state;
-              final places = getPlacesFromState(currentState);
-
-              showSearch(
-                context: context,
-                delegate: PlaceSearchDelegate(
-                  places: places,
-                  favorites: widget.favorites,
-                  onFavoriteToggle: widget.onFavoriteToggle,
+        bottom: _isSearching
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(60.0),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Material(
+                    elevation: 5.0,
+                    borderRadius: BorderRadius.circular(30.0),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search places...',
+                        prefixIcon: Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 15.0),
+                      ),
+                    ),
+                  ),
                 ),
-              );
-            },
-          ),
-        ],
+              )
+            : null,
       ),
-      body: Stack(
-        children: [
-          BlocBuilder<PlaceBloc, PlaceState>(
-            builder: (context, state) {
-              if (state is PlaceInitial) {
-                context
-                    .read<PlaceBloc>()
-                    .add(FetchPlaces('agencyId', 'userToken'));
-                return buildShimmerList();
-              } else if (state is PlaceLoading) {
-                return buildShimmerList();
-              } else if (state is PlaceLoaded) {
-                final filteredPlaces = state.places
-                    .where((place) =>
-                        place.title
-                            .toLowerCase()
-                            .contains(_searchQuery.toLowerCase()) ||
-                        place.placeName
-                            .toLowerCase()
-                            .contains(_searchQuery.toLowerCase()) ||
-                        place.price.toString().contains(_searchQuery))
-                    .toList();
+      body: BlocBuilder<PlaceBloc, PlaceState>(
+        builder: (context, state) {
+          if (state is PlaceInitial) {
+            context.read<PlaceBloc>().add(FetchPlaces('agencyId', 'userToken'));
+            return buildShimmerList();
+          } else if (state is PlaceLoading) {
+            return buildShimmerList();
+          } else if (state is PlaceLoaded) {
+            final filteredPlaces = state.places
+                .where((place) =>
+                    place.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                    place.placeName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                    place.price.toString().contains(_searchQuery))
+                .toList();
 
-                if (filteredPlaces.isEmpty) {
-                  return Center(
-                    child: Text('No results found'),
-                  );
-                }
+            if (filteredPlaces.isEmpty) {
+              return Center(
+                child: Text('No results found'),
+              );
+            }
 
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    context
-                        .read<PlaceBloc>()
-                        .add(FetchPlaces('agencyId', 'userToken'));
-                    await Future.delayed(Duration(seconds: 1));
-                  },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: filteredPlaces.length,
-                    itemBuilder: (context, index) {
-                      final place = filteredPlaces[index];
-                      final isFavorite = widget.favorites.contains(place.id);
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TourPage(
-                                place: place,
-                                showBookingButton: true,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          margin: const EdgeInsets.symmetric(vertical: 10),
-                          elevation: 8,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(20),
-                                          ),
-                                          child: _buildImage(
-                                            place.photos.isNotEmpty
-                                                ? place.photos.first
-                                                : 'https://via.placeholder.com/400x200',
-                                            double.infinity, // width
-                                            200, // height
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 10,
-                                          right: 10,
-                                          child: IconButton(
-                                            icon: Icon(
-                                              isFavorite
-                                                  ? Icons.favorite
-                                                  : Icons.favorite_border,
-                                              color: isFavorite
-                                                  ? Colors.red
-                                                  : Colors.white,
-                                              size: 30,
-                                            ),
-                                            onPressed: () {
-                                              widget.onFavoriteToggle(place);
-                                              if (!isFavorite) {
-                                                _showFavoriteAnimation();
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            place.title ?? 'No Title',
-                                            style: TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            place.placeName ?? 'No Place Name',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.grey[700],
-                                            ),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Wrap(
-                                            spacing: 8.0,
-                                            runSpacing: 4.0,
-                                            children: place.tags
-                                                .map((tag) => Chip(
-                                                      label: Text(tag),
-                                                      backgroundColor: Colors
-                                                          .deepPurple.shade100,
-                                                    ))
-                                                .toList(),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              Icon(Icons.access_time,
-                                                  size: 16,
-                                                  color: Colors.grey[700]),
-                                              SizedBox(width: 4),
-                                              Text(
-                                                place.duration ?? 'No Duration',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey[700],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              Icon(Icons.monetization_on,
-                                                  size: 16,
-                                                  color: Colors.grey[700]),
-                                              SizedBox(width: 4),
-                                              Text(
-                                                '\dt${place.price.toStringAsFixed(2)}',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey[700],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<PlaceBloc>().add(FetchPlaces('agencyId', 'userToken'));
+                await Future.delayed(Duration(seconds: 1));
+              },
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16.0),
+                itemCount: filteredPlaces.length,
+                itemBuilder: (context, index) {
+                  final place = filteredPlaces[index];
+                  final isFavorite = widget.favorites.contains(place.id);
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TourPage(
+                            place: place,
+                            showBookingButton: true,
                           ),
                         ),
                       );
                     },
-                  ),
-                );
-              } else if (state is PlaceError) {
-                return Center(child: Text(state.message));
-              } else {
-                return Center(child: Text('Unexpected state'));
-              }
-            },
-          ),
-          Positioned(
-            top: 10.0,
-            left: 20.0,
-            right: 20.0,
-            child: Material(
-              elevation: 5.0,
-              borderRadius: BorderRadius.circular(30.0),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search places...',
-                  prefixIcon: Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 15.0),
-                ),
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(20),
+                                      ),
+                                      child: _buildImage(
+                                        place.photos.isNotEmpty
+                                            ? place.photos.first
+                                            : 'https://via.placeholder.com/400x200',
+                                        double.infinity, // width
+                                        200, // height
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: IconButton(
+                                        icon: Icon(
+                                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                                          color: isFavorite ? Colors.red : Colors.white,
+                                          size: 30,
+                                        ),
+                                        onPressed: () {
+                                          widget.onFavoriteToggle(place);
+                                          if (!isFavorite) {
+                                            _showFavoriteAnimation();
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        place.title ?? 'No Title',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        place.placeName ?? 'No Place Name',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Wrap(
+                                        spacing: 8.0,
+                                        runSpacing: 4.0,
+                                        children: place.tags
+                                            .map((tag) => Chip(
+                                                  label: Text(tag),
+                                                  backgroundColor: Colors.deepPurple.shade100,
+                                                ))
+                                            .toList(),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.access_time, size: 16, color: Colors.grey[700]),
+                                          SizedBox(width: 4),
+                                          Text(
+                                            place.duration ?? 'No Duration',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.monetization_on, size: 16, color: Colors.grey[700]),
+                                          SizedBox(width: 4),
+                                          Text(
+                                            '\dt${place.price.toStringAsFixed(2)}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-          ),
-        ],
+            );
+          } else if (state is PlaceError) {
+            return Center(child: Text(state.message));
+          } else {
+            return Center(child: Text('Unexpected state'));
+          }
+        },
       ),
     );
   }
@@ -388,8 +375,7 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                       SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.access_time,
-                              size: 16, color: Colors.grey[300]),
+                          Icon(Icons.access_time, size: 16, color: Colors.grey[300]),
                           SizedBox(width: 4),
                           Container(
                             height: 14,
@@ -401,8 +387,7 @@ class _UserHomeState extends State<UserHome> with TickerProviderStateMixin {
                       SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.monetization_on,
-                              size: 16, color: Colors.grey[300]),
+                          Icon(Icons.monetization_on, size: 16, color: Colors.grey[300]),
                           SizedBox(width: 4),
                           Container(
                             height: 14,

@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:tataguid/storage/token_storage.dart';
 
 class ForgotPasswordRepository {
-  static const String baseUrl = 'http://192.168.1.9:8080/auth';
+  static const String baseUrl = 'http://localhost:8080/auth';
   
     Future<void> sendPasswordResetLink(String email) async {  
     try {

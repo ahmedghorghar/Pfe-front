@@ -110,7 +110,12 @@ class _UserBookingsPageState extends State<UserBookingsPage> {
                                   ),
                                   SizedBox(height: 8),
                                   Text(
-                                    "Place: ${booking.placeId}",
+                                    "Place: ${booking.placeName}",
+                                    style: GoogleFonts.lato(fontSize: screenWidth * 0.045),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    "titel: ${booking.title}",
                                     style: GoogleFonts.lato(fontSize: screenWidth * 0.045),
                                   ),
                                   SizedBox(height: 4),

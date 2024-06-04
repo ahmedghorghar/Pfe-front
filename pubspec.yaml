@@ -43,8 +43,8 @@ dependencies:
   google_sign_in: ^6.2.1
   flutter_bloc: ^8.1.4
   google_nav_bar: ^5.0.6
-  google_maps_flutter: ^2.2.8
-  # google_maps_flutter_web: ^0.5.4+3
+  google_maps_flutter: ^2.6.1
+  # google_maps_flutter_web: ^0.5.4
   flutter_secure_storage: ^4.2.0
   hexcolor: ^3.0.1
   otp_text_field: ^1.1.3
@@ -71,7 +71,15 @@ dependencies:
   permission_handler: ^11.3.1
   location: ^6.0.2
   geolocator: ^12.0.0
- 
+  jwt_decoder: ^2.0.1
+  color: ^3.0.0
+  google_places_flutter: ^2.0.8
+  flutter_typeahead: ^5.2.0
+  geocoding: ^3.0.0
+  get: ^4.6.6
+  web_socket_channel: ^3.0.0
+  flutter_polyline_points: ^2.0.0
+
 
 
 dev_dependencies:
@@ -82,7 +90,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/logo.png"
+  image_path: "assets/images/app-logo.jpeg"
 
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -91,6 +99,7 @@ flutter_launcher_icons:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

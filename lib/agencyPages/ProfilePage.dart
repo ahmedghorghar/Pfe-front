@@ -1,21 +1,20 @@
 // lib/agencyPages/profilePage.dart
 
-// lib/agencyPages/profilePage.dart
-
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tataguid/agencyPages/ProfilePages/agency_places_page.dart';
+import 'package:tataguid/agencyPages/ProfilePages/general_information_page.dart';
+import 'package:tataguid/blocs/profile/profile_bloc.dart';
+import 'package:tataguid/blocs/profile/profile_event.dart';
+import 'package:tataguid/storage/profil_storage.dart';
+import 'package:tataguid/storage/token_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tataguid/blocs/login/login_bloc.dart';
 import 'package:tataguid/blocs/login/login_event.dart';
 import 'package:tataguid/blocs/login/login_state.dart';
-import 'package:tataguid/blocs/profile/profile_bloc.dart';
-import 'package:tataguid/blocs/profile/profile_event.dart';
-import 'package:tataguid/storage/profil_storage.dart';
-import 'package:tataguid/storage/token_storage.dart';
+import 'dart:io';
 
 class AgencyProfile extends StatefulWidget {
   const AgencyProfile({super.key});
@@ -43,7 +42,6 @@ class _AgencyProfileState extends State<AgencyProfile> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: HexColor("#1E9CFF"),
-          leading: Image.asset("assets/agencyImages/Menu.png"),
           title: Text(
             "Messages",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
@@ -58,8 +56,7 @@ class _AgencyProfileState extends State<AgencyProfile> {
                   FutureBuilder<String?>(
                     future: ProfileUserStorage.getUserEmail(),
                     builder: (context, emailSnapshot) {
-                      if (emailSnapshot.connectionState ==
-                          ConnectionState.done) {
+                      if (emailSnapshot.connectionState == ConnectionState.done) {
                         String? email = emailSnapshot.data;
                         return FutureBuilder<String?>(
                           future: ProfileUserStorage.getProfileImage(email!),
@@ -75,8 +72,7 @@ class _AgencyProfileState extends State<AgencyProfile> {
                   FutureBuilder<String?>(
                     future: ProfileAgencyStorage.getAgencyName(),
                     builder: (context, nameSnapshot) {
-                      if (nameSnapshot.connectionState ==
-                          ConnectionState.done) {
+                      if (nameSnapshot.connectionState == ConnectionState.done) {
                         String? agencyName = nameSnapshot.data;
                         return Padding(
                           padding: EdgeInsets.only(left: sW * 0.05),
@@ -99,8 +95,21 @@ class _AgencyProfileState extends State<AgencyProfile> {
                   children: [
                     profileOptionCard(
                       "General Information",
-                      onTap: () {
-                        Navigator.pushNamed(context, '/general_information');
+                      onTap: () async {
+                        String email = await ProfileUserStorage.getUserEmail() ?? '';
+                        String token = await TokenStorage.getToken() ?? '';
+                        bool? shouldRefresh = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GeneralInformationPage(
+                              email: email,
+                              token: token,
+                            ),
+                          ),
+                        );
+                        if (shouldRefresh == true) {
+                          refreshProfile();
+                        }
                       },
                     ),
                     profileOptionCard(
@@ -113,6 +122,22 @@ class _AgencyProfileState extends State<AgencyProfile> {
                       "Settings",
                       onTap: () {
                         Navigator.pushNamed(context, '/settings');
+                      },
+                    ),
+                    profileOptionCard(
+                      "Uploaded Places",
+                      onTap: () async {
+                        String agencyId = await ProfileAgencyStorage.getAgencyId() ?? '';
+                        String userToken = await TokenStorage.getToken() ?? '';
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AgencyPlacesPage(
+                              agencyId: agencyId,
+                              userToken: userToken,
+                            ),
+                          ),
+                        );
                       },
                     ),
                     profileOptionCard(
@@ -206,8 +231,6 @@ class _AgencyProfileState extends State<AgencyProfile> {
             },
             child: Icon(Icons.camera_alt, color: Colors.teal, size: 28.0),
           ),
-       
-
         ),
       ],
     );
@@ -235,5 +258,9 @@ class _AgencyProfileState extends State<AgencyProfile> {
     context.read<ProfileBloc>().add(
           UploadProfileImage(imageFile: imageFile, token: token, email: email),
         );
+  }
+
+  void refreshProfile() {
+    setState(() {});
   }
 }

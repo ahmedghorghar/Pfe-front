@@ -1,5 +1,6 @@
 // lib/userPages/profilePage.dart
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -41,214 +42,92 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Scaffold(
         body: SafeArea(
           child: Container(
-            margin: EdgeInsets.all(15),
+            margin: const EdgeInsets.all(15),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Profile & Settings",
-                      style: GoogleFonts.lato(
-                        textStyle: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w700,
-                            fontSize: screenWidth * 0.08),
-                      )),
+                  Text(
+                    "Profile & Settings",
+                    style: GoogleFonts.lato(
+                      textStyle: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                        fontSize: screenWidth * 0.08,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: screenHeight * 0.04),
                   Row(
                     children: [
                       FutureBuilder<String?>(
                         future: ProfileUserStorage.getUserEmail(),
                         builder: (context, emailSnapshot) {
-                          if (emailSnapshot.connectionState ==
-                              ConnectionState.done) {
+                          if (emailSnapshot.connectionState == ConnectionState.done) {
                             String? email = emailSnapshot.data;
                             return FutureBuilder<String?>(
-                              future:
-                                  ProfileUserStorage.getProfileImage(email!),
+                              future: ProfileUserStorage.getProfileImage(email!),
                               builder: (context, snapshot) {
                                 return imageProfile(snapshot);
                               },
                             );
                           } else {
-                            return CircularProgressIndicator();
+                            return const CircularProgressIndicator();
                           }
                         },
                       ),
                       FutureBuilder<String?>(
                         future: ProfileUserStorage.getUserName(),
                         builder: (context, nameSnapshot) {
-                          if (nameSnapshot.connectionState ==
-                              ConnectionState.done) {
+                          if (nameSnapshot.connectionState == ConnectionState.done) {
                             String? name = nameSnapshot.data;
                             return Padding(
-                              padding:
-                                  EdgeInsets.only(left: screenWidth * 0.05),
+                              padding: EdgeInsets.only(left: screenWidth * 0.05),
                               child: Text(
                                 name ?? "Default Name",
                                 style: GoogleFonts.lato(
-                                  textStyle:
-                                      TextStyle(fontSize: screenWidth * 0.06),
+                                  textStyle: TextStyle(fontSize: screenWidth * 0.06),
                                 ),
                               ),
                             );
                           } else {
-                            return CircularProgressIndicator();
+                            return const CircularProgressIndicator();
                           }
                         },
                       ),
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.04),
-                  ListTile(
-                    onTap: () {
-                      setState(() {
-                        showSettings = !showSettings;
-                      });
-                    },
-                    leading: Icon(Icons.settings),
-                    title: Text("Settings",
-                        style: GoogleFonts.lato(
-                          textStyle: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                    trailing: Icon(Icons.keyboard_arrow_down),
-                  ),
-                  if (showSettings)
-                    Container(
-                      margin: EdgeInsets.only(left: screenWidth * 0.1),
-                      child: Column(
-                        children: [
-                          settingsOption("Application Theme", theme, themes,
-                              (newValue) {
-                            setState(() {
-                              theme = newValue!;
-                              if (theme == "Dark") {
-                                context
-                                    .read<ThemeManager>()
-                                    .setTheme(ThemeMode.dark);
-                              } else {
-                                context
-                                    .read<ThemeManager>()
-                                    .setTheme(ThemeMode.light);
-                              }
-                            });
-                          }),
-                          settingsOption(
-                              "Temperature", temperature, temperatures,
-                              (newValue) {
-                            setState(() {
-                              temperature = newValue!;
-                            });
-                          }),
-                          settingsOption("Distance", distance, distances,
-                              (newValue) {
-                            setState(() {
-                              distance = newValue!;
-                            });
-                          }),
-                        ],
-                      ),
-                    ),
-                  Divider(),
-                  ListTile(
-                    leading: Icon(Icons.monetization_on_rounded),
-                    title: Text("Restore Purchases",
-                        style: GoogleFonts.lato(
-                          textStyle: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded),
-                  ),
-                  Divider(),
-                  ListTile(
-                    leading: Icon(Icons.star_border_outlined),
-                    title: Text("Rate the App",
-                        style: GoogleFonts.lato(
-                          textStyle: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => RateAppPage()),
-                      );
-                    },
-                  ),
-                  Divider(),
-                  ListTile(
-                    leading: Icon(Icons.message_outlined),
-                    title: Text("Share Feedback",
-                        style: GoogleFonts.lato(
-                          textStyle: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ShareFeedbackPage()),
-                      );
-                    },
-                  ),
-                  Divider(),
-                  ListTile(
-                    leading: Icon(Icons.info_outline),
-                    title: Text("About TataGuid",
-                        style: GoogleFonts.lato(
-                          textStyle: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AboutTataGuidPage()),
-                      );
-                    },
-                  ),
-                  Divider(),
-                  ListTile(
-                    leading: Icon(Icons.book_online),
-                    title: Text("Your Bookings",
-                        style: GoogleFonts.lato(
-                          textStyle: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UserBookingsPage()),
-                      );
-                    },
-                  ),
-                  Divider(),
-                  ListTile(
-                    leading: Icon(Icons.logout),
-                    title: Text("Logout",
-                        style: GoogleFonts.lato(
-                          textStyle: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500),
-                        )),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded),
-                    onTap: () {
-                      BlocProvider.of<LoginBloc>(context).add(LogoutEvent());
-                      // Navigate to login screen after logout
-                      Navigator.of(context).pushReplacementNamed('/login_ui');
-                    },
-                  ),
-                  Divider(),
+                  buildSettingsTile(context, "Settings", Icons.settings, () {
+                    setState(() {
+                      showSettings = !showSettings;
+                    });
+                  }, showSettings),
+                  if (showSettings) buildSettingsOptions(context, screenWidth),
+                  buildDivider(),
+                  buildProfileOption(context, "Restore Purchases", Icons.monetization_on_rounded, null),
+                  buildDivider(),
+                  buildProfileOption(context, "Rate the App", Icons.star_border_outlined, () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => RateAppPage()));
+                  }),
+                  buildDivider(),
+                  buildProfileOption(context, "Share Feedback", Icons.message_outlined, () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ShareFeedbackPage()));
+                  }),
+                  buildDivider(),
+                  buildProfileOption(context, "About TataGuid", Icons.info_outline, () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => AboutTataGuidPage()));
+                  }),
+                  buildDivider(),
+                  buildProfileOption(context, "Your Bookings", Icons.book_online, () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => UserBookingsPage()));
+                  }),
+                  buildDivider(),
+                  buildProfileOption(context, "Logout", Icons.logout, () {
+                    context.read<LoginBloc>().add(LogoutEvent());
+                    Navigator.of(context).pushReplacementNamed('/login_ui');
+                  }),
+                  buildDivider(),
                 ],
               ),
             ),
@@ -258,17 +137,62 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget settingsOption(String title, String currentValue, List<String> options,
-      ValueChanged<String?> onChanged) {
-    double screenWidth = MediaQuery.of(context).size.width;
+  Widget buildSettingsTile(BuildContext context, String title, IconData icon, VoidCallback? onTap, bool showSettings) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(icon),
+      title: Text(
+        title,
+        style: GoogleFonts.lato(
+          textStyle: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.05,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+      trailing: Icon(showSettings ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
+    );
+  }
 
+  Widget buildSettingsOptions(BuildContext context, double screenWidth) {
+    return Container(
+      margin: EdgeInsets.only(left: screenWidth * 0.1),
+      child: Column(
+        children: [
+          buildSettingsOption("Application Theme", theme, themes, (newValue) {
+            setState(() {
+              theme = newValue!;
+              if (theme == "Dark") {
+                context.read<ThemeManager>().setTheme(ThemeMode.dark);
+              } else {
+                context.read<ThemeManager>().setTheme(ThemeMode.light);
+              }
+            });
+          }),
+          buildSettingsOption("Temperature", temperature, temperatures, (newValue) {
+            setState(() {
+              temperature = newValue!;
+            });
+          }),
+          buildSettingsOption("Distance", distance, distances, (newValue) {
+            setState(() {
+              distance = newValue!;
+            });
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget buildSettingsOption(String title, String currentValue, List<String> options, ValueChanged<String?> onChanged) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return ListTile(
       title: Text(title),
       trailing: SizedBox(
         width: screenWidth * 0.3,
         child: DropdownButtonFormField<String>(
           value: currentValue,
-          icon: Icon(Icons.arrow_drop_down),
+          icon: const Icon(Icons.arrow_drop_down),
           menuMaxHeight: 200,
           items: options.map((String value) {
             return DropdownMenuItem(
@@ -286,34 +210,84 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget BottomSheet() {
+  Widget buildDivider() {
+    return const Divider();
+  }
+
+  Widget buildProfileOption(BuildContext context, String title, IconData icon, VoidCallback? onTap) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(
+        title,
+        style: GoogleFonts.lato(
+          textStyle: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.05,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios_rounded),
+      onTap: onTap,
+    );
+  }
+
+  Widget imageProfile(AsyncSnapshot<String?> snapshot) {
+    return Center(
+      child: Stack(
+        children: <Widget>[
+          CircleAvatar(
+            radius: 50.0,
+            backgroundImage: snapshot.hasData
+                ? FileImage(File(snapshot.data!))
+                : const AssetImage('assets/Profileimage.png') as ImageProvider,
+          ),
+          Positioned(
+            bottom: 0.0,
+            right: 0.0,
+            child: InkWell(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: ((builder) => buildBottomSheet()),
+                );
+              },
+              child: const Icon(
+                Icons.camera_alt,
+                color: Colors.teal,
+                size: 28.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildBottomSheet() {
     return Container(
       height: 100.0,
       width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 20,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       child: Column(
         children: <Widget>[
-          Text("Choose a Profile Photo", style: TextStyle(fontSize: 20.0)),
-          SizedBox(height: 20),
+          const Text("Choose a Profile Photo", style: TextStyle(fontSize: 20.0)),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               TextButton.icon(
-                icon: Icon(Icons.camera),
+                icon: const Icon(Icons.camera),
                 onPressed: () {
                   takePhoto(ImageSource.camera);
                 },
-                label: Text("Camera"),
+                label: const Text("Camera"),
               ),
               TextButton.icon(
-                icon: Icon(Icons.image),
+                icon: const Icon(Icons.image),
                 onPressed: () {
                   takePhoto(ImageSource.gallery);
                 },
-                label: Text("Gallery"),
+                label: const Text("Gallery"),
               ),
             ],
           ),
@@ -322,40 +296,18 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget imageProfile(AsyncSnapshot<String?> snapshot) {
-    return Center(
-      child: Stack(children: <Widget>[
-        CircleAvatar(
-          radius: 50.0,
-          backgroundImage: snapshot.hasData
-              ? NetworkImage(snapshot.data!)
-              : AssetImage('assets/Profileimage.png') as ImageProvider,
-        ),
-        Positioned(
-          bottom: 0.0,
-          right: 0.0,
-          child: InkWell(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                builder: ((builder) => BottomSheet()),
-              );
-            },
-            child: Icon(
-              Icons.camera_alt,
-              color: Colors.teal,
-              size: 28.0,
-            ),
-          ),
-        ),
-      ]),
-    );
-  }
-
   void takePhoto(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
-    setState(() {
-      _imageFile = pickedFile;
-    });
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = pickedFile;
+      });
+
+      // Save the new profile image path
+      String? email = await ProfileUserStorage.getUserEmail();
+      if (email != null) {
+        await ProfileUserStorage.setProfileImage(email, _imageFile!.path);
+      }
+    }
   }
 }

@@ -10,20 +10,23 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:tataguid/blocs/Bookingsblocs/booking_bloc.dart';
 import 'package:tataguid/blocs/Bookingsblocs/booking_event.dart';
 import 'package:tataguid/blocs/Bookingsblocs/booking_state.dart'; // Import the booking state
+import 'package:tataguid/blocs/Chat/chat_bloc.dart';
+import 'package:tataguid/blocs/Chat/chat_event.dart';
 import 'package:tataguid/models/booking.dart';
 import 'package:tataguid/models/place_model.dart';
 import 'package:tataguid/storage/token_storage.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:tataguid/userPages/ChatPage.dart';
 import 'package:tataguid/utils/deep_link_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tataguid/userPages/searchPage.dart';
 
 class TourPage extends StatefulWidget {
   final PlaceModel place;
   final bool showBookingButton;
 
-  const TourPage({Key? key, required this.place, this.showBookingButton = true})
-      : super(key: key);
+  const TourPage({Key? key, required this.place, this.showBookingButton = true}) : super(key: key);
 
   @override
   _TourPageState createState() => _TourPageState();
@@ -38,9 +41,9 @@ class _TourPageState extends State<TourPage> {
   @override
   void initState() {
     super.initState();
-    _confettiController =
-        ConfettiController(duration: const Duration(seconds: 1));
+    _confettiController = ConfettiController(duration: const Duration(seconds: 1));
     _fetchAgencyPhoneNumber();
+    print("Agency Name: ${widget.place.agencyName}"); // Add this line
   }
 
   @override
@@ -50,7 +53,6 @@ class _TourPageState extends State<TourPage> {
   }
 
   Future<void> _fetchAgencyPhoneNumber() async {
-    // Fetch the phone number from the PlaceModel
     setState(() {
       phoneNumber = widget.place.phoneNumber;
     });
@@ -69,15 +71,35 @@ class _TourPageState extends State<TourPage> {
     }
   }
 
+  void _startChat() async {
+    final userId = await TokenStorage.getToken(); // Get the current user ID
+    final agencyId = await TokenStorage.getAgencyId(); // Assuming this should get agency ID
+
+    if (userId != null && agencyId != null) {
+      final chatBloc = BlocProvider.of<ChatBloc>(context);
+      chatBloc.add(ConnectWebSocket(userId)); // Connect to the WebSocket
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatPage(
+            userId: userId,
+            receiverId: agencyId,
+            agencyName: widget.place.agencyName ?? 'Unknown Agency', // Handle null value
+          ),
+        ),
+      );
+    } else {
+      _showSnackBar('User not logged in or agency ID is missing');
+    }
+  }
+
   void _bookNow() async {
     setState(() {
       isLoading = true;
     });
     try {
       // Ensure the visitDate string format is consistent and correct
-      final dateRangeString = widget.place.visitDate
-          .replaceAll('from the ', '')
-          .replaceAll(' to the ', ' to ');
+      final dateRangeString = widget.place.visitDate.replaceAll('from the ', '').replaceAll(' to the ', ' to ');
 
       final dateRange = dateRangeString.split(' to ');
 
@@ -145,7 +167,7 @@ class _TourPageState extends State<TourPage> {
 🔑 **Check-in/out**: ${widget.place.checkInOut}
 ♿ **Accessibility**: ${widget.place.accessibility}
 
-💰 **Price**: \$${widget.place.price}
+💰 **Price**: \dt${widget.place.price}
 
 📝 **Description**: 
 ${widget.place.description ?? 'No Description Available'}
@@ -162,6 +184,49 @@ Don't miss out on this wonderful opportunity!
       sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
     );
   }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  void _showDialogBox(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text('Logged In Alert'),
+          content: Text("You have to login first to use full functionalities."),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pushNamed(context, "/login_ui");
+              },
+              child: Text("Go to page"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("No"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _launchDirections() async {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => MapPage(placeName: widget.place.placeName),
+    ),
+  );
+  
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -192,8 +257,7 @@ Don't miss out on this wonderful opportunity!
                       250,
                     ),
                     Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
+                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -206,28 +270,20 @@ Don't miss out on this wonderful opportunity!
                           ),
                           SizedBox(height: sh * 0.02),
                           buildInfoRow(Icons.place, widget.place.placeName, sh),
-                          buildInfoRow(
-                              Icons.map, widget.place.startEndPoint, sh),
-                          buildInfoRow(
-                              Icons.date_range, widget.place.visitDate, sh),
-                          buildInfoRow(Icons.attach_money,
-                              '\$${widget.place.price}', sh),
+                          buildInfoRow(Icons.map, widget.place.startEndPoint, sh),
+                          buildInfoRow(Icons.date_range, widget.place.visitDate, sh),
+                          buildInfoRow(Icons.attach_money, '\dt${widget.place.price}', sh),
                           buildInfoRow(Icons.timer, widget.place.duration, sh),
                           buildInfoRow(Icons.hotel, widget.place.hotelName, sh),
-                          buildInfoRow(
-                              Icons.access_time, widget.place.checkInOut, sh),
-                          buildInfoRow(
-                              Icons.accessible, widget.place.accessibility, sh),
+                          buildInfoRow(Icons.access_time, widget.place.checkInOut, sh),
+                          buildInfoRow(Icons.accessible, widget.place.accessibility, sh),
                           SizedBox(height: sh * 0.02),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              buildActionButton(
-                                  Icons.call_split, "Directions", sw, sh, () {
-                                // Add your directions functionality here
-                              }),
-                              buildActionButton(
-                                  Icons.call, "Call", sw, sh, _callAgency),
+                              buildActionButton(Icons.call_split, "Directions", sw, sh, _launchDirections),
+                              buildActionButton(Icons.call, "Call", sw, sh, _callAgency),
+                              buildActionButton(Icons.chat, "Chat", sw, sh, _startChat), // Add chat button
                             ],
                           ),
                           SizedBox(height: sh * 0.04),
@@ -242,12 +298,10 @@ Don't miss out on this wonderful opportunity!
                           CarouselSlider(
                             items: widget.place.photos.map((photo) {
                               return Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 5),
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child:
-                                      _buildImage(photo, sw * 0.8, sh * 0.25),
+                                  child: _buildImage(photo, sw * 0.8, sh * 0.25),
                                 ),
                               );
                             }).toList(),
@@ -269,8 +323,7 @@ Don't miss out on this wonderful opportunity!
                           ),
                           SizedBox(height: sh * 0.01),
                           Text(
-                            widget.place.description ??
-                                'No Description Available',
+                            widget.place.description ?? 'No Description Available',
                             style: GoogleFonts.lato(
                               fontSize: sw * 0.04,
                             ),
@@ -301,8 +354,7 @@ Don't miss out on this wonderful opportunity!
                   children: [
                     IconButton(
                       onPressed: _toggleFavorite,
-                      icon: Icon(Icons.favorite,
-                          color: isLiked ? Colors.pink : Colors.white),
+                      icon: Icon(Icons.favorite, color: isLiked ? Colors.pink : Colors.white),
                       iconSize: sw * 0.07,
                     ),
                     IconButton(
@@ -330,11 +382,20 @@ Don't miss out on this wonderful opportunity!
                     ),
                     child: isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            "Book Now",
-                            style: GoogleFonts.lato(
-                              fontSize: sw * 0.05,
-                              fontWeight: FontWeight.bold,
+                        : InkWell(
+                            onTap: () async {
+                              final user_type = await TokenStorage.getUserType();
+                              if (user_type == "guest") {
+                                _showDialogBox(context);
+                              }
+                              // Add the page you want to show when logged in user taps on this button
+                            },
+                            child: Text(
+                              "Book Now",
+                              style: GoogleFonts.lato(
+                                fontSize: sw * 0.05,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                   ),
@@ -356,9 +417,7 @@ Don't miss out on this wonderful opportunity!
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.lato(
-                fontSize: 16,
-              ),
+              style: GoogleFonts.lato(fontSize: 16),
             ),
           ),
         ],
@@ -366,22 +425,22 @@ Don't miss out on this wonderful opportunity!
     );
   }
 
-  Widget buildActionButton(IconData icon, String label, double sw, double sh,
-      VoidCallback onPressed) {
+  Widget buildActionButton(IconData icon, String label, double sw, double sh, VoidCallback onPressed) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.red,
-        elevation: 5,
-        shadowColor: Colors.grey,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.red,
+        padding: EdgeInsets.symmetric(horizontal: sw * 0.02, vertical: sh * 0.01),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        fixedSize: Size(sw * 0.4, sh * 0.06),
       ),
       onPressed: onPressed,
-      icon: Icon(icon),
-      label: Text(label),
+      icon: Icon(icon, size: sw * 0.06),
+      label: Text(
+        label,
+        style: GoogleFonts.lato(fontSize: sw * 0.045),
+      ),
     );
   }
 
@@ -407,10 +466,5 @@ Don't miss out on this wonderful opportunity!
         },
       );
     }
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
   }
 }

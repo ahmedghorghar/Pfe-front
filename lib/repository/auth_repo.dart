@@ -11,7 +11,7 @@ import 'package:logger/logger.dart';
 
 class AuthRepository {
   final TokenStorage tokenStorage = TokenStorage();
-  static const String baseUrl = 'http://192.168.1.9:8080/auth';
+  static const String baseUrl = 'http://localhost:8080/auth';
   final logger = Logger();
 
   Future<AuthResponse> login(String email, String password) async {

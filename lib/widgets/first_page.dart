@@ -78,7 +78,7 @@ class ForgotPasswordFirstPage extends StatelessWidget {
             ),
             SizedBox(height: screenHeight * 0.02),
             Text(
-              "Enter your email for the verification process we will send 6 digits code to your email.",
+              "Enter your email for the verification process we will send a verification code.",
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   color: Colors.grey,

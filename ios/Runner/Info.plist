@@ -79,5 +79,13 @@
   <string>tel</string>
 </array>
 
+
+<!-- to ask users for his location -->
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>We need your location to show your current position on the map.</string>
+<key>NSLocationAlwaysUsageDescription</key>
+<string>We need your location to show your current position on the map.</string>
+
+
 </dict>
 </plist>

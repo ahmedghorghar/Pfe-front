@@ -42,50 +42,53 @@ class BookingModel {
   }
 }
  */
-
 // lib/models/booking.dart
 class BookingModel {
-  late final String id;
-  late final String userId;
-  late final String userName;
-  late final String userEmail;
-  late final String placeId;
-  late final String placeName; // Ensure this field is present
-  late final String title;
-  late final String agencyId;
-  late final DateTime bookingDate;
-  late final double price; // This field will be used for price.
-  late final String notes;
+  String? id;
+  String? userId;
+  String? userName;
+  String? userEmail;
+  String? placeId;
+  String? placeName;
+  String? title;
+  String? agencyId;
+  DateTime? bookingDate;
+  double? price;
+  String? notes;
+  String? img;
+  List<String>? tags;
 
   BookingModel({
-    required this.id,
-    required this.userId,
-    required this.userName,
-    required this.userEmail,
-    required this.placeId,
-    required this.placeName, // Ensure this field is initialized
-    required this.title,
-    required this.agencyId,
-    required this.bookingDate,
-    required this.price,
-    required this.notes,
+    this.id,
+    this.userId,
+    this.userName,
+    this.userEmail,
+    this.placeId,
+    this.placeName,
+    this.title,
+    this.agencyId,
+    this.bookingDate,
+    this.price,
+    this.notes,
+    this.img,
+    this.tags,
   });
 
-BookingModel.fromJson(Map<String, dynamic> json) {
-    id = json['bookingId'] ?? json['_id'] ?? '';
-    userId = json['userId'] ?? '';
-    userName = json['userName'] ?? '';
-    userEmail = json['userEmail'] ?? '';
-    placeId = json['placeId'] ?? '';
-    placeName = json['placeName'] ?? ''; // Ensure this field is parsed
-    title = json['title'] ?? '';
-    agencyId = json['agencyId'] ?? '';
-    bookingDate = (json['visitDate'] != null
-        ? DateTime.parse(json['visitDate'])
-        : null)!;
+  BookingModel.fromJson(Map<String, dynamic> json) {
+    id = json['bookingId'] ?? json['_id'];
+    userId = json['userId'];
+    userName = json['userName'];
+    userEmail = json['userEmail'];
+    placeId = json['placeId'];
+    placeName = json['placeName'];
+    title = json['title'];
+    agencyId = json['agencyId'];
+    bookingDate = json['visitDate'] != null ? DateTime.parse(json['visitDate']) : null;
     price = json['price']?.toDouble();
-    notes = json['notes'] ?? '';
-}
+    notes = json['notes'];
+    img = json['img'];
+    tags = json['tags'] != null ? List<String>.from(json['tags']) : null;
+  }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -94,12 +97,19 @@ BookingModel.fromJson(Map<String, dynamic> json) {
     data['userName'] = userName;
     data['userEmail'] = userEmail;
     data['placeId'] = placeId;
-    data['placeName'] = placeName; // Ensure this field is included in JSON
+    data['placeName'] = placeName;
     data['title'] = title;
     data['agencyId'] = agencyId;
-    data['visitDate'] = bookingDate.toIso8601String();
+    data['visitDate'] = bookingDate?.toIso8601String();
     data['price'] = price;
     data['notes'] = notes;
+    data['img'] = img;
+    data['tags'] = tags;
     return data;
+  }
+
+  @override
+  String toString() {
+    return 'BookingModel{id: $id, userId: $userId, userName: $userName, userEmail: $userEmail, placeId: $placeId, placeName: $placeName, title: $title, agencyId: $agencyId, bookingDate: $bookingDate, price: $price, notes: $notes, img: $img, tags: $tags}';
   }
 }

@@ -8,21 +8,21 @@ class Constants{
 
 class IntroConstants{
   static const String image = "assets/images/onboarding_1.png";
-  static const String WelcomPage = "Bienvenue dans notre application TataGuid";
-  static const String DESC = "Parcourez des sentiers inexplorés et créez des souvenirs inoubliables avec nous.";
+  static const String WelcomPage = "Welcome to our TataGuid app";
+  static const String DESC = "Explore unexplored trails and create unforgettable memories with us.";
 }
 class Constants1{
   static const String image = "assets/images/page1.jpg";
-  static const String title = "Partez à la découverte du Tataouine";
-  static const String DESC = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ultricies, erat vitae porta consequat.";
+  static const String title = "Embark on Your Adventure";
+  static const String DESC = "Discover new horizons and embark on thrilling journeys. Let us guide you to the most breathtaking destinations waiting to be explored.";
 }
 class Constants2{
   static const String image = "assets/images/page2.jpg";
-  static const String WelcomPage = "Easy Exchange!";
-  static const String DESC = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ultricies, erat vitae porta consequat.";
+  static const String WelcomPage = " Meet New Friends";
+  static const String DESC = "Find and join groups.";
 }
 class Constants3{
   static const String image = "assets/images/page3.jpg";
-  static const String WelcomPage = "Easy Exchange!";
-  static const String DESC = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ultricies, erat vitae porta consequat.";
+  static const String WelcomPage = "Discover New Paths";
+  static const String DESC = "Share experiences and make memories.";
 }

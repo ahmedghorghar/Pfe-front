@@ -8,7 +8,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:tataguid/storage/profil_storage.dart';
 
 class ProfileRepository {
-  static const String baseUrl = 'http://192.168.1.9:8080/profile'; // Replace with your backend URL
+  static const String baseUrl = 'http://localhost:8080/profile'; // Replace with your backend URL
 
  Future<String> uploadProfileImage(
     File imageFile, String token, String email) async {
@@ -42,4 +42,30 @@ class ProfileRepository {
     throw error;
   }
 }
+ Future<void> updateAgencyProfile(String email, String token, String? agencyName, String? location, String? description, String? phoneNumber) async {
+    try {
+      final url = Uri.parse('$baseUrl/update/agency/$email');
+      Map<String, dynamic> updateFields = {};
+
+      if (agencyName != null) updateFields['agencyName'] = agencyName;
+      if (location != null) updateFields['location'] = location;
+      if (description != null) updateFields['description'] = description;
+      if (phoneNumber != null) updateFields['phoneNumber'] = phoneNumber;
+
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(updateFields),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update profile');
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 }

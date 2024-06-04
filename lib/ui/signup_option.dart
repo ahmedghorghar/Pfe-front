@@ -29,19 +29,19 @@ class _SignupOptionsState extends State<SignupOptions> {
   late SignupBloc _signupBloc;
 
   final TextEditingController nameController =
-      TextEditingController(text: 'userName');
+      TextEditingController(/* text: 'userName' */);
   final TextEditingController languageController =
-      TextEditingController(text: 'userLaguage');
+      TextEditingController(/* text: 'userLaguage' */);
   final TextEditingController countryController =
-      TextEditingController(text: 'userCountry');
+      TextEditingController(/* text: 'userCountry' */);
   final TextEditingController agencyNameController =
-      TextEditingController(text: 'agencyName');
+      TextEditingController(/* text: 'agencyName' */);
   final TextEditingController locationController =
-      TextEditingController(text: 'agencyLocation');
+      TextEditingController(/* text: 'agencyLocation' */);
   final TextEditingController descriptionController =
-      TextEditingController(text: 'agencySecription');
+      TextEditingController(/* text: 'agencySecription' */);
   final TextEditingController phoneNumberController =
-      TextEditingController(text: '25418279');
+      TextEditingController(/* text: '25418279' */);
   String selectedRole = ''; // Variable to store the selected role
 
   @override

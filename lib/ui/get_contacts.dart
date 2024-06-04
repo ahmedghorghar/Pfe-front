@@ -68,8 +68,8 @@ class _UserPageState extends State<UserPage> {
                     text: 'Home',
                   ),
                   GButton(
-                    icon: Icons.search,
-                    text: 'Search',
+                    icon: Icons.map,
+                    text: 'Cart',
                   ),
                   GButton(
                     icon: Icons.favorite_border,

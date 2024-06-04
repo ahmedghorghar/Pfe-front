@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tataguid/blocs/signup/signup_bloc.dart';
 import 'package:tataguid/blocs/signup/signup_event.dart';
 import 'package:tataguid/blocs/signup/signup_state.dart';
-import 'package:flutter/material.dart'show ScaffoldMessenger; // Use 'material.dart'
 import 'package:provider/provider.dart';
 import 'package:tataguid/components/my_textfield.dart';
 import 'package:tataguid/models/User.dart';
@@ -24,17 +23,17 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController emailController =
-      TextEditingController(text: 'raserfinblade@gmail.com');
-  /* final TextEditingController emailController =
-      TextEditingController(text: 'gg@gmail.com'); */
+      TextEditingController(/* text: 'ahmedgharghar@gmail.com' */);
   final TextEditingController passwordController =
-      TextEditingController(text: '12345678');
+      TextEditingController(/* text: 'Ahmed123@' */);
   final TextEditingController confirmpassController =
-      TextEditingController(text: '12345678');
+      TextEditingController(/* text: 'Ahmed123@' */);
   final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>(); // For SnackBar
 
   String errorMessage = '';
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   void _clearErrorMessage() {
     setState(() {
@@ -53,8 +52,6 @@ class _SignUpPageState extends State<SignUpPage> {
       child: Icon(Icons.supervised_user_circle, size: 150, color: Colors.blue),
     );
 
-    // BuildTextFormField and other widgets omitted for brevity
-
     final email = BuildTextFormField(
       'Email',
       emailController,
@@ -70,29 +67,42 @@ class _SignUpPageState extends State<SignUpPage> {
       Icons.email,
     );
 
-    final pass = BuildTextFormField(
+    final pass = BuildPasswordField(
       'Password',
       passwordController,
       (value) {
-        // Implement password strength validation
-        if (value!.isEmpty) {
-          return "Password cannot be empty";
+        if (!_isValidPassword(value!)) {
+          return "Password must include symbols, digits, uppercase and lowercase letters, and be at least 8 characters long.";
         }
         return null;
       },
       TextInputType.visiblePassword,
       Icons.lock,
+      _isPasswordVisible,
+      () {
+        setState(() {
+          _isPasswordVisible = !_isPasswordVisible;
+        });
+      },
     );
 
-    final confirmpass = BuildTextFormField(
+    final confirmpass = BuildPasswordField(
       'Confirm password',
       confirmpassController,
       (value) {
-        // Password validation logic
+        if (value != passwordController.text) {
+          return "Passwords do not match.";
+        }
         return null;
       },
       TextInputType.visiblePassword,
       Icons.lock,
+      _isConfirmPasswordVisible,
+      () {
+        setState(() {
+          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+        });
+      },
     );
 
     final signUpButton = Padding(
@@ -114,28 +124,29 @@ class _SignUpPageState extends State<SignUpPage> {
                   r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z]+")
               .hasMatch(email)) {
             _showErrorSnackBar('Invalid email format.');
-            return; // Exit the function if email format is invalid
+            return;
           }
 
           if (!_isValidPassword(password)) {
-            _showErrorSnackBar('Password must be at least 8 characters long.');
+            _showErrorSnackBar('Password must include symbols, digits, uppercase and lowercase letters, and be at least 8 characters long.');
             return;
           }
+
           // Validate password and confirm password
           if (password.isEmpty || confirmPassword.isEmpty) {
             _showErrorSnackBar('Password fields cannot be empty.');
-            return; // Exit the function if password fields are empty
+            return;
           }
 
           if (password != confirmPassword) {
             _showErrorSnackBar('Passwords do not match.');
-            return; // Exit the function if passwords do not match
+            return;
           }
 
           // Perform signup logic
           signupBloc
               .add(TriggerEmailPasswordEvent(email: email, password: password));
-          //navigate to the SignupOptions()
+          // Navigate to the SignupOptions()
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -245,8 +256,12 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   bool _isValidPassword(String password) {
-    return password.length >= 8; // Password length validation
-    // You can include additional password validation logic here if needed
+    bool hasUppercase = password.contains(RegExp(r'[A-Z]'));
+    bool hasDigits = password.contains(RegExp(r'[0-9]'));
+    bool hasLowercase = password.contains(RegExp(r'[a-z]'));
+    bool hasSpecialCharacters = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+    bool hasMinLength = password.length >= 8;
+    return hasUppercase & hasDigits & hasLowercase & hasSpecialCharacters & hasMinLength;
   }
 
   void _storeToken(String token) async {

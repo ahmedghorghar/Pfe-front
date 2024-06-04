@@ -9,6 +9,7 @@ import 'package:tataguid/agencyPages/ProfilePages/offers_promotions_page.dart';
 import 'package:tataguid/agencyPages/ProfilePages/settings_page.dart';
 import 'package:tataguid/agencyPages/homePage.dart';
 import 'package:tataguid/blocs/Bookingsblocs/booking_bloc.dart';
+import 'package:tataguid/blocs/Chat/chat_bloc.dart';
 import 'package:tataguid/blocs/getPlace/get_place_bloc.dart';
 import 'package:tataguid/blocs/guest/guest_bloc.dart';
 import 'package:tataguid/blocs/login/login_bloc.dart';
@@ -20,11 +21,14 @@ import 'package:tataguid/components/theme_manager.dart';
 import 'package:tataguid/pages/onboarding_page.dart';
 import 'package:tataguid/repository/auth_repo.dart';
 import 'package:tataguid/repository/booking_repository.dart';
+import 'package:tataguid/repository/chat_repository.dart';
 import 'package:tataguid/repository/get_places_repository.dart';
 import 'package:tataguid/repository/guest_repository.dart';
 import 'package:tataguid/repository/password_reset_repo.dart';
 import 'package:tataguid/repository/profil_repo.dart';
 import 'package:tataguid/repository/upload_repository.dart';
+import 'package:tataguid/storage/profil_storage.dart';
+import 'package:tataguid/storage/token_storage.dart';
 import 'package:tataguid/ui/LoginUi.dart';
 import 'package:tataguid/ui/get_contacts.dart';
 import 'package:tataguid/ui/post_contacts.dart';
@@ -41,6 +45,7 @@ class TataGuid extends StatelessWidget {
     final UploadRepository uploadRepository = UploadRepository();
     final PlaceRepository placeRepository = PlaceRepository();
     final BookingRepository bookingRepository = BookingRepository();
+    final ChatRepository chatRepository = ChatRepository();
 
     return MultiProvider(
       providers: [
@@ -56,24 +61,25 @@ class TataGuid extends StatelessWidget {
               forgotPasswordRepository: forgotPasswordRepository),
         ),
         BlocProvider<ProfileBloc>(
-          create: (context) => ProfileBloc(
-              profileRepository: profileRepository),
+          create: (context) =>
+              ProfileBloc(profileRepository: profileRepository),
         ),
         BlocProvider<GuestBloc>(
-          create: (context) => GuestBloc(
-              guestRepository: guestRepository),
+          create: (context) => GuestBloc(guestRepository: guestRepository),
         ),
         BlocProvider<UploadBloc>(
-          create: (context) => UploadBloc(
-              uploadRepository: uploadRepository),
+          create: (context) => UploadBloc(uploadRepository: uploadRepository),
         ),
         BlocProvider<PlaceBloc>(
-          create: (context) => PlaceBloc(
-              placeRepository: placeRepository),
+          create: (context) => PlaceBloc(placeRepository: placeRepository),
         ),
         BlocProvider<BookingBloc>(
-          create: (context) => BookingBloc(
-              bookingRepository: bookingRepository),
+          create: (context) =>
+              BookingBloc(bookingRepository: bookingRepository),
+        ),
+        BlocProvider<ChatBloc>(
+          create: (context) =>
+              ChatBloc(chatRepository: chatRepository),
         ),
         ChangeNotifierProvider<ThemeManager>(
           create: (context) => ThemeManager(),
@@ -91,9 +97,29 @@ class TataGuid extends StatelessWidget {
               '/': (context) => OnboardingPage(),
               '/user_dashboard': (context) => UserPage(),
               '/agency_panel': (context) => AgencyPanelScreen(),
-              '/login_ui': (context) => LoginUi(), // Your login page
+              '/login_ui': (context) => LoginUi(),
               '/Guest': (context) => UserPage(),
-              '/general_information': (context) => GeneralInformationPage(),
+              '/general_information': (context) => FutureBuilder<List<String?>>(
+                future: Future.wait([
+                  ProfileAgencyStorage.getAgencyEmail(), 
+                  TokenStorage.getToken()
+                ]),
+                builder: (context, AsyncSnapshot<List<String?>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Scaffold(
+                      body: Center(child: Text('Error: ${snapshot.error}')),
+                    );
+                  } else {
+                    final email = snapshot.data![0] ?? ''; // Provide default value
+                    final token = snapshot.data![1] ?? ''; // Provide default value
+                    return GeneralInformationPage(email: email, token: token);
+                  }
+                },
+              ),
               '/offers_promotions': (context) => OffersPromotionsPage(),
               '/settings': (context) => SettingsPage(),
               '/agency_home': (context) => AgencyHome(),

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class UploadRepository {
-  static const String baseUrl = 'http://192.168.1.9:8080'; // Replace with your backend URL
+  static const String baseUrl = 'http://localhost:8080'; // Replace with your backend URL
 
   // Method for adding a new place
   static Future<void> addPlace(String agencyId, Map<String, dynamic> data, String token) async {

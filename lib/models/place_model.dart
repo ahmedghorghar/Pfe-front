@@ -15,6 +15,7 @@ class PlaceModel {
   final String accessibility;
   final List<String> tags;
   final String phoneNumber;
+  final agencyName;
 
   PlaceModel({
     required this.id,
@@ -31,6 +32,7 @@ class PlaceModel {
     required this.accessibility,
     required this.tags,
     required this.phoneNumber,
+    this.agencyName,
   });
 
   factory PlaceModel.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class PlaceModel {
       accessibility: json['accessibility'] ?? '',
       tags: List<String>.from(json['tags'] ?? []),
       phoneNumber: json['phoneNumber'] ?? '',
+      agencyName: json['agencyName'],
     );
   }
 
@@ -68,6 +71,7 @@ class PlaceModel {
     data['accessibility'] = accessibility;
     data['tags'] = tags;
     data['phoneNumber'] = phoneNumber;
+    data['agencyName'] = agencyName;
     return data;
   }
 }
